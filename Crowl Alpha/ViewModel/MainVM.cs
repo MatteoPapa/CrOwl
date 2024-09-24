@@ -1,18 +1,57 @@
 ﻿using Crowl_Alpha.ViewModel.Commands;
-using System;
+using Crowl_Alpha.ViewModel.Helpers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Crowl_Alpha.ViewModel
 {
     public class MainVM : INotifyPropertyChanged
     {
-        #region Props
+        #region Generic Props
 
+        //If you need it...
+        #endregion
+
+        #region Commands
+        public TorSwitchCommand TorSwitchCommand { get; set; }
+        public GoToUrlCommand GoToUrlCommand { get; set; }
+        public object ResourceExtractorTor { get; private set; }
+
+        #endregion
+
+
+
+        #region Url Management
+
+        private string url;
+
+        public string Url
+        {
+            get { return url; }
+            set { url = value; OnPropertyChanged("Url"); }
+        }
+
+        public void VisitUrl()
+        {
+            if (url != null && SearchIsReadyVariable)
+            {
+                if (torEnabled)
+                {
+                    Debug.WriteLine($"Visiting {Url} with Tor");
+                }
+                else
+                {
+                    Debug.WriteLine($"Visiting {Url} without Tor");
+                }
+            }
+        }
+
+        #endregion
+
+        #region TOR Management
         private bool torEnabled;
 
         public bool TorEnabled
@@ -25,10 +64,75 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-        #endregion
+        private bool searchIsReadyVariable=true;
 
-        #region Commands
-        public TorSwitchCommand TorSwitchCommand { get; set; }
+        public bool SearchIsReadyVariable
+        {
+            get { return searchIsReadyVariable; }
+            set
+            {
+                searchIsReadyVariable = value;
+                OnPropertyChanged("SearchIsReadyVariable");
+
+                CommandManager.InvalidateRequerySuggested(); //Forcing Update
+            }
+        }
+
+        private Process torProcess;
+
+        public void TorSwitch()
+        {
+            if (TorEnabled)
+            {
+                SearchIsReadyVariable = false;
+                ActivateTor();
+            }
+            else
+            {
+                DeactivateTor();
+                SearchIsReadyVariable = true;
+            }
+        }
+
+        private void ActivateTor()
+        {
+
+            if (torProcess == null)
+            {
+                List<string> torArguments = new List<string> { "--SocksPort", "19050", "--ControlPort", "19051" };
+                torProcess = ResourceExtractorTorHelper.RunEmbeddedExe("tor.exe", torArguments);
+
+            }
+            else
+            {
+                MessageBox.Show("Tor is already initialized", "", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void DeactivateTor()
+        {
+
+            ProcessHelper.killProcess(torProcess);
+            torProcess = null;
+        }
+
+        private void TorIsReady()
+        {
+            // Check if we're on the UI thread
+            if (Application.Current.Dispatcher.CheckAccess())
+            {
+                // We are on the UI thread, so we can directly update the property
+                SearchIsReadyVariable = true;
+            }
+            else
+            {
+                // We are NOT on the UI thread, use the dispatcher to update the property
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    SearchIsReadyVariable = true;
+                });
+            }
+        }
 
         #endregion
 
@@ -36,22 +140,14 @@ namespace Crowl_Alpha.ViewModel
         public MainVM()
         {
             TorSwitchCommand = new TorSwitchCommand(this);
-        }
+            GoToUrlCommand = new GoToUrlCommand(this);
 
-        #endregion
+            //Subscription to the TorIsReadyEvent
+            ResourceExtractorTorHelper.TorReady += TorIsReady;
 
-        #region Methods
-
-        public void TorSwitch()
-        {
-            if (TorEnabled)
-            {
-                Debug.WriteLine("True my dear");
-            }
-            else
-            {
-                Debug.WriteLine("False my dear");
-            }
+            //Initializing variables
+            SearchIsReadyVariable = true;
+            Url = "https://check.torproject.org/";
         }
 
         #endregion

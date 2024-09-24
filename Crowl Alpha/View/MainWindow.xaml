@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Crowl_Alpha.View"
-        xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:uc="clr-namespace:Crowl_Alpha.View.Controls"
+        xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
+        xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
         Background="{DynamicResource MaterialDesign.Brush.Background}"
@@ -25,132 +26,148 @@
     <!-- Window Resources -->
     <Window.Resources>
         <vm:MainVM x:Key="vm" />
+        <converters:BoolToColorMultiConverter x:Key="BoolToColorMultiConverter" />
     </Window.Resources>
 
-    <DockPanel>
-        <!-- Custom Title Bar -->
-        <uc:TitleBarControl DockPanel.Dock="Top" />
+    <Border BorderBrush="#44FFFFFF"
+            BorderThickness="1"
+            CornerRadius="7">
+        <DockPanel>
 
-        <!-- Main Content Area -->
-        <Grid DataContext="{Binding Source={StaticResource vm}}">
+            <!-- Custom Title Bar -->
+            <uc:TitleBarControl DockPanel.Dock="Top" />
 
-            <!--#region Main Grid Definition -->
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*" />
-                <ColumnDefinition Width="3" />
-                <ColumnDefinition Width="2*" />
-            </Grid.ColumnDefinitions>
-            <!--#endregion-->
+            <!-- Main Content Area -->
+            <Grid DataContext="{Binding Source={StaticResource vm}}">
 
-            <!--#region Browser Section -->
-            <StackPanel Grid.Column="0">
-                <Border BorderBrush="#33FFFFFF"
-                        BorderThickness="0 0 0 1">
-                    <Grid Height="70">
+                <!--#region Main Grid Definition -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="3" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <!--#endregion-->
 
-                        <!--#region Toolbar Grid Def -->
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.3*" />
-                            <ColumnDefinition Width="2.5*" />
-                            <ColumnDefinition Width="0.5*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <!--#endregion-->
+                <!--#region Browser Section -->
+                <StackPanel Grid.Column="0">
+                    <Border BorderBrush="#33FFFFFF"
+                            BorderThickness="0 0 0 1">
+                        <Grid Height="70">
 
-                        <!--#region Back/Forward Buttons -->
-                        <StackPanel Grid.Column="0"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right">
-                            <Button Content="{materialDesign:PackIcon Kind=ArrowLeftBold, Size=30}"
-                                    Foreground="White"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center"
-                                    Padding="0"
-                                    Style="{DynamicResource MaterialDesignFlatButton}" />
-                            <Button Content="{materialDesign:PackIcon Kind=ArrowRightBold, Size=30}"
-                                    Margin="10 0 0 0"
-                                    Foreground="White"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center"
-                                    Padding="0"
-                                    Style="{DynamicResource MaterialDesignFlatButton}" />
-                        </StackPanel>
-                        <!--#endregion-->
-
-                        <!--#region Url TextBox -->
-                        <Grid Grid.Column="1"
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Stretch"
-                              Margin="10 0">
+                            <!--#region Toolbar Grid Def -->
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="0.3*" />
+                                <ColumnDefinition Width="2.5*" />
+                                <ColumnDefinition Width="0.5*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
+                            <!--#endregion-->
 
-                            <!-- Icon -->
-                            <materialDesign:PackIcon Kind="Web"
-                                                     Width="30"
-                                                     Height="30"
-                                                     Foreground="White"
-                                                     VerticalAlignment="Center"
-                                                     Margin="5" />
+                            <!--#region Back/Forward Buttons -->
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Right">
+                                <Button Content="{materialDesign:PackIcon Kind=ArrowLeftBold, Size=30}"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Padding="0"
+                                        Style="{DynamicResource MaterialDesignFlatButton}" />
+                                <Button Content="{materialDesign:PackIcon Kind=ArrowRightBold, Size=30}"
+                                        Margin="10 0 0 0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Padding="0"
+                                        Style="{DynamicResource MaterialDesignFlatButton}" />
+                            </StackPanel>
+                            <!--#endregion-->
 
-                            <!-- TextBox -->
-                            <TextBox Grid.Column="1"
-                                     Text="http://check-tor-project.com"
-                                     VerticalAlignment="Center"
-                                     HorizontalAlignment="Stretch"
-                                     Foreground="White"
-                                     FontSize="16"
-                                     Padding="5,0" />
-                        </Grid>
-                        <!--#endregion-->
+                            <!--#region Url TextBox -->
+                            <Grid Grid.Column="1"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Stretch"
+                                  Margin="10 0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
 
-                        <!--#region Go Button -->
-                        <Button Grid.Column="2"
-                                Content="{materialDesign:PackIcon Kind=Crosshairs}"
-                                Width="50"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                VerticalAlignment="Center"
-                                Margin="10" />
-                        <!--#endregion-->
+                                <!-- Icon -->
+                                <materialDesign:PackIcon Kind="Web"
+                                                         Width="30"
+                                                         Height="30"
+                                                         Foreground="White"
+                                                         VerticalAlignment="Center"
+                                                         Margin="5" />
 
-                        <!--#region Incognito ToggleSwitch -->
-                        <StackPanel Grid.Column="3"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
+                                <!-- TextBox -->
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Stretch"
+                                         Foreground="White"
+                                         FontSize="16"
+                                         Padding="5,0" />
+                            </Grid>
+                            <!--#endregion-->
+
+                            <!--#region Go Button -->
+                            <Button Grid.Column="2"
+                                    Content="{materialDesign:PackIcon Kind=Crosshairs}"
+                                    Command="{Binding GoToUrlCommand, UpdateSourceTrigger=PropertyChanged}"
+                                    CommandParameter="{Binding SearchIsReadyVariable}"
+                                    Width="50"
+                                    HorizontalAlignment="Left"
+                                    HorizontalContentAlignment="Left"
                                     VerticalAlignment="Center"
-                                    Margin="30 0">
-                            <ToggleButton Margin="15 0"
-                                          IsChecked="{Binding TorEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Command="{Binding TorSwitchCommand}" />
-                            <materialDesign:PackIcon Kind="Incognito"
-                                                     VerticalAlignment="Center"
-                                                     Width="40"
-                                                     Height="40"
-                                                     Foreground="White" />
-                        </StackPanel>
-                        <!--#endregion-->
+                                    Margin="10" />
+                            <!--#endregion-->
 
-                    </Grid>
-                </Border>
-            </StackPanel>
-            <!--#endregion-->
+                            <!--#region Incognito ToggleSwitch -->
+                            <StackPanel Grid.Column="3"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Margin="30 0">
+                                <ToggleButton Margin="15 0"
+                                              IsChecked="{Binding TorEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Command="{Binding TorSwitchCommand}" />
+                                <materialDesign:PackIcon Kind="Incognito"
+                                                         VerticalAlignment="Center"
+                                                         Width="40"
+                                                         Height="40">
+                                    <materialDesign:PackIcon.Foreground>
+                                        <MultiBinding Converter="{StaticResource BoolToColorMultiConverter}">
+                                            <Binding Path="SearchIsReadyVariable" />
+                                            <Binding Path="TorEnabled" />
+                                            <!-- Add more bindings as needed -->
+                                        </MultiBinding>
+                                    </materialDesign:PackIcon.Foreground>
+                                </materialDesign:PackIcon>
+                            </StackPanel>
+                            <!--#endregion-->
 
-            <!--#region GridSplitter-->
-            <GridSplitter Grid.Column="1"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Stretch"
-                          Width="5"
-                          Background="#22FFFFFF"
-                          ResizeBehavior="PreviousAndNext"
-                          ShowsPreview="True" />
-            <!--#endregion-->
+                        </Grid>
+                    </Border>
+                </StackPanel>
+                <!--#endregion-->
 
-            <Grid Grid.Column="2">
+                <!--#region GridSplitter-->
+                <GridSplitter Grid.Column="1"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Width="5"
+                              Background="#22FFFFFF"
+                              ResizeBehavior="PreviousAndNext"
+                              ShowsPreview="True" />
+                <!--#endregion-->
+
+                <Grid Grid.Column="2">
+                </Grid>
+
             </Grid>
+        </DockPanel>
+    </Border>
 
-        </Grid>
-    </DockPanel>
 </Window>
