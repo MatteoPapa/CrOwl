@@ -33,6 +33,15 @@
         <vm:MainVM x:Key="vm" />
         <converters:BoolToColorMultiConverter x:Key="BoolToColorMultiConverter" />
     </Window.Resources>
+    
+    <!--Window chrome -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      ResizeBorderThickness="5"
+                      CornerRadius="10"
+                      GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
+    
 
     <Border BorderBrush="#44FFFFFF"
             BorderThickness="1"
