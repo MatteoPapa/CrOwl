@@ -22,7 +22,9 @@
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="CanResize"
+        
         Closing="Window_Closing"
+
         Height="972"
         Width="1728">
 
@@ -53,12 +55,14 @@
 
                 <!--#region Browser Section -->
 
-
                 <Grid Grid.Column="0">
+
+                    <!-- #region Browser Grid Definition -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <!--#endregion-->
 
                     <!--#region Toolbar -->
                     <Border BorderBrush="#33FFFFFF"
@@ -172,9 +176,11 @@
                         </Grid>
                     </Border>
                     <!--#endregion-->
-                    
+
                     <!--#region Chromium Web Browser -->
-                    <Grid Grid.Row="1" Background="White">
+                    <Grid Grid.Row="1"
+                          x:Name="BrowserGrid"
+                          Background="White">
                         <cefSharp:ChromiumWebBrowser Name="browser"
                                                      Address="{Binding SearchedUrl}" />
                     </Grid>
@@ -183,10 +189,7 @@
                     <!--#endregion-->
 
                 </Grid>
-
-
-
-
+                
                 <!--#endregion-->
 
                 <!--#region GridSplitter-->

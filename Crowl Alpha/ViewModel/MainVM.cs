@@ -1,4 +1,5 @@
-﻿using Crowl_Alpha.ViewModel.Commands;
+﻿using Crowl_Alpha.View;
+using Crowl_Alpha.ViewModel.Commands;
 using Crowl_Alpha.ViewModel.Helpers;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,8 +22,6 @@ namespace Crowl_Alpha.ViewModel
         public object ResourceExtractorTor { get; private set; }
 
         #endregion
-
-
 
         #region Url Management
 
@@ -53,6 +52,7 @@ namespace Crowl_Alpha.ViewModel
                 if (torEnabled)
                 {
                     Debug.WriteLine($"Visiting {Url} with Tor");
+                    SearchedUrl = Url;
                 }
                 else
                 {
@@ -105,6 +105,7 @@ namespace Crowl_Alpha.ViewModel
                 DeactivateTor();
                 SearchIsReadyVariable = true;
             }
+
         }
 
         private void ActivateTor()
@@ -127,6 +128,7 @@ namespace Crowl_Alpha.ViewModel
 
             ProcessHelper.killProcess(torProcess);
             torProcess = null;
+            ExecuteToggleProxy();
         }
 
         private void TorIsReady()
@@ -145,7 +147,27 @@ namespace Crowl_Alpha.ViewModel
                     SearchIsReadyVariable = true;
                 });
             }
+            ExecuteToggleProxy();
         }
+
+        private void ExecuteToggleProxy()
+        {
+            Debug.WriteLine("Executing ExecuteToggleProxy");
+
+            // Toggle the proxy (true to use proxy, false to disable proxy)
+            bool useProxy = torEnabled;
+
+            // Access the MainWindow instance on the UI thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Safely access MainWindow
+                MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+
+                // Call the ApplyProxySettings method on the UI thread
+                mainWindow.ApplyProxySettings(useProxy);
+            });
+        }
+
 
         #endregion
 
