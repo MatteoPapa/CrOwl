@@ -98,20 +98,5 @@ namespace Crowl_Alpha.View
         {
             MainVM.DeactivateTor();
         }
-
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (browser != null)
-            {
-                Debug.WriteLine(e.NewSize.Width);
-                // Set the browser control size explicitly
-                browser.Width = e.NewSize.Width;
-                browser.Height = e.NewSize.Height;
-
-                // Update the layout to reflect the changes
-                browser.InvalidateVisual();
-                browser.UpdateLayout();
-            }
-        }
     }
 }

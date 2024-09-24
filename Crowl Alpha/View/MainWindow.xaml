@@ -56,7 +56,7 @@
 
                 <!--#region Browser Section -->
 
-                <Grid Grid.Column="0" SizeChanged="Grid_SizeChanged">
+                <Grid Grid.Column="0">
 
                     <!-- #region Browser Grid Definition -->
                     <Grid.RowDefinitions>
