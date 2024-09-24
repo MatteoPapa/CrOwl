@@ -34,6 +34,18 @@ namespace Crowl_Alpha.ViewModel
             set { url = value; OnPropertyChanged("Url"); }
         }
 
+        private string searchedUrl;
+
+        public string SearchedUrl
+        {
+            get { return searchedUrl; }
+            set
+            {
+                searchedUrl = value;
+                OnPropertyChanged("SearchedUrl");
+            }
+        }
+
         public void VisitUrl()
         {
             if (url != null && SearchIsReadyVariable)
@@ -45,6 +57,7 @@ namespace Crowl_Alpha.ViewModel
                 else
                 {
                     Debug.WriteLine($"Visiting {Url} without Tor");
+                    SearchedUrl = Url;
                 }
             }
         }
@@ -64,7 +77,7 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-        private bool searchIsReadyVariable=true;
+        private bool searchIsReadyVariable = true;
 
         public bool SearchIsReadyVariable
         {

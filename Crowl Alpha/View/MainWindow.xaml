@@ -8,6 +8,8 @@
         xmlns:uc="clr-namespace:Crowl_Alpha.View.Controls"
         xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
         xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
+        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
         Background="{DynamicResource MaterialDesign.Brush.Background}"
@@ -50,9 +52,18 @@
                 <!--#endregion-->
 
                 <!--#region Browser Section -->
-                <StackPanel Grid.Column="0">
+
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!--#region Toolbar -->
                     <Border BorderBrush="#33FFFFFF"
-                            BorderThickness="0 0 0 1">
+                            BorderThickness="0 0 0 1"
+                            Grid.Row="0">
                         <Grid Height="70">
 
                             <!--#region Toolbar Grid Def -->
@@ -109,7 +120,16 @@
                                          HorizontalAlignment="Stretch"
                                          Foreground="White"
                                          FontSize="16"
-                                         Padding="5,0" />
+                                         Padding="5,0">
+
+                                    <!-- InputBindings for Enter Key -->
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter"
+                                                    Command="{Binding GoToUrlCommand}"
+                                                    CommandParameter="{Binding SearchIsReadyVariable}" />
+                                    </TextBox.InputBindings>
+
+                                </TextBox>
                             </Grid>
                             <!--#endregion-->
 
@@ -151,7 +171,22 @@
 
                         </Grid>
                     </Border>
-                </StackPanel>
+                    <!--#endregion-->
+                    
+                    <!--#region Chromium Web Browser -->
+                    <Grid Grid.Row="1" Background="White">
+                        <cefSharp:ChromiumWebBrowser Name="browser"
+                                                     Address="{Binding SearchedUrl}" />
+                    </Grid>
+
+
+                    <!--#endregion-->
+
+                </Grid>
+
+
+
+
                 <!--#endregion-->
 
                 <!--#region GridSplitter-->
