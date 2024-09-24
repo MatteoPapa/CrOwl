@@ -109,7 +109,7 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-        private void DeactivateTor()
+        public void DeactivateTor()
         {
 
             ProcessHelper.killProcess(torProcess);

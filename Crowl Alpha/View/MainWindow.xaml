@@ -20,6 +20,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="CanResize"
+        Closing="Window_Closing"
         Height="972"
         Width="1728">
 

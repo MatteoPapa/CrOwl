@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Crowl_Alpha.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,43 +21,18 @@ namespace Crowl_Alpha.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly MainVM MainVM;
         public MainWindow()
         {
             InitializeComponent();
+
+            MainVM = Resources["vm"] as MainVM;
         }
 
-        // Minimize the window
-        private void MinimizeWindow(object sender, RoutedEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            this.WindowState = WindowState.Minimized;
+            MainVM.DeactivateTor();
         }
 
-        // Maximize or restore the window
-        private void MaximizeRestoreWindow(object sender, RoutedEventArgs e)
-        {
-            if (this.WindowState == WindowState.Maximized)
-            {
-                this.WindowState = WindowState.Normal;
-            }
-            else
-            {
-                this.WindowState = WindowState.Maximized;
-            }
-        }
-
-        // Close the window
-        private void CloseWindow(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                this.DragMove();
-                Debug.WriteLine("Clicked");
-            }
-        }
     }
 }
