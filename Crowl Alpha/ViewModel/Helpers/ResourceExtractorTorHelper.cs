@@ -10,6 +10,7 @@ namespace Crowl_Alpha.ViewModel.Helpers
     public class ResourceExtractorTorHelper
     {
         public static event Action TorReady;
+
         public static Process RunEmbeddedExe(string exe, List<string> configOptions)
         {
             string resourceName = $"Crowl_Alpha.Resources.{exe}";
@@ -27,10 +28,10 @@ namespace Crowl_Alpha.ViewModel.Helpers
                 {
                     File.Delete(tempPath);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    MessageBox.Show($"Impossible to delete temporary file. Are you using {tempPath}?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return null;
+                        MessageBox.Show($"Failed to delete the temporary file after trying to kill the locking process: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return null;
                 }
             }
 
@@ -92,5 +93,6 @@ namespace Crowl_Alpha.ViewModel.Helpers
                 }
             }
         }
+
     }
 }

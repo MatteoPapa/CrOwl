@@ -12,7 +12,6 @@
         
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
-        Background="{DynamicResource MaterialDesign.Brush.Background}"
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
@@ -21,6 +20,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="CanResize"
         
         Closing="Window_Closing"
@@ -36,8 +36,9 @@
 
     <Border BorderBrush="#44FFFFFF"
             BorderThickness="1"
-            CornerRadius="7">
-        <DockPanel>
+            CornerRadius="10"
+            Background="{DynamicResource MaterialDesign.Brush.Background}">
+        <DockPanel >
 
             <!-- Custom Title Bar -->
             <uc:TitleBarControl DockPanel.Dock="Top" />
@@ -55,7 +56,7 @@
 
                 <!--#region Browser Section -->
 
-                <Grid Grid.Column="0">
+                <Grid Grid.Column="0" SizeChanged="Grid_SizeChanged">
 
                     <!-- #region Browser Grid Definition -->
                     <Grid.RowDefinitions>
@@ -181,7 +182,7 @@
                     <Grid Grid.Row="1"
                           x:Name="BrowserGrid"
                           Background="White">
-                        <cefSharp:ChromiumWebBrowser Name="browser"
+                        <cefSharp:ChromiumWebBrowser x:Name="browser"
                                                      Address="{Binding SearchedUrl}" />
                     </Grid>
 

@@ -10,11 +10,20 @@ using System.Windows;
 
 namespace Crowl_Alpha
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
+    /// <summary>  
+    /// Interaction logic for App.xaml  
+    /// </summary>  
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
 
+            var settings = new CefSettings();
+            settings.DisableGpuAcceleration(); // Disable DPI scaling  
+
+            // Initialize the CefSharp browser with custom settings  
+            Cef.Initialize(settings);
+        }
     }
 }
