@@ -172,8 +172,6 @@ namespace Crowl_Alpha.ViewModel
 
         #endregion
 
-
-
         #region Constructor
         public MainVM()
         {
