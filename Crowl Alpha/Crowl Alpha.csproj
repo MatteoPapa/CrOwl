@@ -73,6 +73,7 @@
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToColorMultiConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\ValueConverters\ReloadIconConverter.cs" />
     <Compile Include="View\Controls\TitleBarControl.xaml.cs">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
     </Compile>
