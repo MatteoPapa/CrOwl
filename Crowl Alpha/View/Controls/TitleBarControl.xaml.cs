@@ -57,6 +57,7 @@ namespace Crowl_Alpha.View.Controls
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
+                Window.GetWindow(this).WindowState = WindowState.Normal;
                 Window.GetWindow(this).DragMove();
             }
         }
