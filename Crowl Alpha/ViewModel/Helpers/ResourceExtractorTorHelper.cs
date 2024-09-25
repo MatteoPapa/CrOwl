@@ -11,7 +11,7 @@ namespace Crowl_Alpha.ViewModel.Helpers
     {
         public static event Action TorReady;
 
-        public static Process RunEmbeddedExe(string exe, List<string> configOptions)
+        public static Process RunEmbeddedExeWithTorrc(string exe, List<string> configOptions, string torrcContent)
         {
             string resourceName = $"Crowl_Alpha.Resources.{exe}";
 
@@ -27,17 +27,28 @@ namespace Crowl_Alpha.ViewModel.Helpers
                 {
                     File.Delete(tempPath);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                        MessageBox.Show($"Failed to delete the temporary file after trying to kill the locking process: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return null;
+                    MessageBox.Show($"Failed to delete the temporary file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return null;
                 }
             }
 
+            // Extract tor.exe
             ExtractResource(assembly, resourceName, tempPath);
 
+            // Generate a temporary torrc configuration file
+            string torrcPath = Path.Combine(Path.GetTempPath(), "torrc_temp.txt");
+            File.WriteAllText(torrcPath, torrcContent);
+
+            // Add the -f option to specify the torrc file
+            List<string> torArguments = new List<string>(configOptions);
+            torArguments.Add("-f");
+            torArguments.Add(torrcPath);
+
             // Argument String Preparation
-            string arguments = configOptions != null ? string.Join(" ", configOptions) : "";
+            string arguments = string.Join(" ", torArguments);
+            Console.WriteLine("Arguments: " + arguments);
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
@@ -62,7 +73,7 @@ namespace Crowl_Alpha.ViewModel.Helpers
                     // Is It Ready ?
                     if (e.Data.Contains("Bootstrapped 100% (done): Done"))
                     {
-                        TorReady?.Invoke(); 
+                        TorReady?.Invoke();
                     }
                 }
             };

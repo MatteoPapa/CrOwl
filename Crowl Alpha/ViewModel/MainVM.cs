@@ -25,6 +25,7 @@ namespace Crowl_Alpha.ViewModel
         public GoToUrlCommand GoToUrlCommand { get; set; }
         public BrowserGoBackCommand BrowserGoBackCommand { get; set; }
         public BrowserGoForwardCommand BrowserGoForwardCommand { get; set; }
+        public ChangeTorNodeCommand ChangeTorNodeCommand { get; set; }
         public object ResourceExtractorTor { get; private set; }
 
         #endregion
@@ -36,6 +37,7 @@ namespace Crowl_Alpha.ViewModel
             GoToUrlCommand = new GoToUrlCommand(this);
             BrowserGoBackCommand = new BrowserGoBackCommand(this);
             BrowserGoForwardCommand = new BrowserGoForwardCommand(this);
+            ChangeTorNodeCommand = new ChangeTorNodeCommand(this);
 
             //Subscription to the TorIsReadyEvent
             ResourceExtractorTorHelper.TorReady += TorIsReady;
@@ -73,7 +75,7 @@ namespace Crowl_Alpha.ViewModel
         {
             if (url != null && SearchIsReadyVariable)
             {
-                if (string.IsNullOrEmpty(SearchedUrl) || url!=SearchedUrl)
+                if (string.IsNullOrEmpty(SearchedUrl) || url != SearchedUrl)
                 {
                     if (torEnabled)
                     {
@@ -96,6 +98,7 @@ namespace Crowl_Alpha.ViewModel
         #endregion
 
         #region TOR Management
+
         private bool torEnabled;
 
         public bool TorEnabled
@@ -139,14 +142,25 @@ namespace Crowl_Alpha.ViewModel
 
         }
 
+        private string hashedPassword = "16:ACFB697EFA9D2E9D60EAEAB60E4F713E7CCBC6E2A8ABE8632DF20446DB";
+
         private void ActivateTor()
         {
-
             if (torProcess == null)
             {
-                List<string> torArguments = new List<string> { "--SocksPort", "19050", "--ControlPort", "19051" };
-                torProcess = ResourceExtractorTorHelper.RunEmbeddedExe("tor.exe", torArguments);
+                // Generate the content of the torrc file
+                string torrcContent = $@"
+                    ControlPort 19051
+                    HashedControlPassword {hashedPassword}
+                    CookieAuthentication 0
+                ";
 
+                // Pass the torrc content and additional options (e.g., SocksPort)
+                List<string> torArguments = new List<string> {
+                    "--SocksPort", "19050"
+                };
+
+                torProcess = ResourceExtractorTorHelper.RunEmbeddedExeWithTorrc("tor.exe", torArguments, torrcContent);
             }
             else
             {
@@ -183,9 +197,6 @@ namespace Crowl_Alpha.ViewModel
 
         private void ExecuteToggleProxy()
         {
-            Debug.WriteLine("Executing ExecuteToggleProxy");
-
-            // Toggle the proxy (true to use proxy, false to disable proxy)
             bool useProxy = torEnabled;
 
             // Access the MainWindow instance on the UI thread
@@ -199,6 +210,14 @@ namespace Crowl_Alpha.ViewModel
             });
         }
 
+        public async void ChangeTorNode()
+        {
+            if (torEnabled)
+            {
+                await TorControlHelper.ChangeTorNode();
+                browser.Reload();
+            }
+        }
 
         #endregion
 

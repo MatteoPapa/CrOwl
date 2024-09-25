@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Crowl_Alpha.View
@@ -98,6 +99,19 @@ namespace Crowl_Alpha.View
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             MainVM.DeactivateTor();
+        }
+
+        private void OpenContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            // Find the PackIcon control
+            var button = sender as Button;
+
+            // If the context menu exists, open it
+            if (button != null && button.ContextMenu != null)
+            {
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.IsOpen = true;
+            }
         }
     }
 }

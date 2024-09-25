@@ -12,7 +12,6 @@ namespace Crowl_Alpha.ViewModel.ValueConverters
             // Ensure we have two values (Url and SearchedUrl)
             if (values.Length == 2 && values[0] is string url && values[1] is string searchedUrl)
             {
-                // Check the logic to decide which icon to return
                 PackIconKind iconKind;
                 if (url != searchedUrl || string.IsNullOrEmpty(url) || string.IsNullOrEmpty(searchedUrl))
                 {
@@ -23,16 +22,14 @@ namespace Crowl_Alpha.ViewModel.ValueConverters
                     iconKind = PackIconKind.Reload;
                 }
 
-                // Return a PackIcon element with the chosen PackIconKind
                 return new PackIcon
                 {
                     Kind = iconKind,
-                    Width = 18,  // Set the desired size for the icon
+                    Width = 18, 
                     Height = 18
                 };
             }
 
-            // Default icon if logic fails
             return new PackIcon
             {
                 Kind = PackIconKind.Crosshairs,

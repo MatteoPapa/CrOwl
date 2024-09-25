@@ -112,7 +112,7 @@
                                         Style="{DynamicResource MaterialDesignFlatButton}" />
                             </StackPanel>
                             <!--#endregion-->
-                            
+
                             <!--#region Reload Button -->
                             <Button Grid.Column="1"
                                     Command="{Binding GoToUrlCommand, UpdateSourceTrigger=PropertyChanged}"
@@ -131,7 +131,7 @@
                                 </Button.Content>
                             </Button>
                             <!--#endregion-->
-                            
+
                             <!--#region Url TextBox -->
                             <Grid Grid.Column="2"
                                   VerticalAlignment="Center"
@@ -177,30 +177,54 @@
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center"
-                                        Margin="30 0">
+                                        Margin="20 0">
                                 <ToggleButton Margin="15 0"
                                               IsChecked="{Binding TorEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               Command="{Binding TorSwitchCommand}" />
 
-                                <materialDesign:PackIcon Kind="Incognito"
-                                                         Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                         VerticalAlignment="Center"
-                                                         Width="40"
-                                                         Height="40">
-                                    <materialDesign:PackIcon.Foreground>
-                                        <MultiBinding Converter="{StaticResource BoolToColorMultiConverter}">
-                                            <Binding Path="SearchIsReadyVariable" />
-                                            <Binding Path="TorEnabled" />
-                                            <!-- Add more bindings as needed -->
-                                        </MultiBinding>
-                                    </materialDesign:PackIcon.Foreground>
-                                </materialDesign:PackIcon>
+                                <!-- #region Incognito Button -->
+                                <Button Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Width="50"
+                                        Height="50"
+                                        Cursor="Hand"
+                                        IsEnabled="{Binding TorEnabled}"
+                                        Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Click="OpenContextMenu_Click"
+                                        Padding="0">
+
+                                    <!-- PackIcon inside the Button for the visual appearance -->
+                                    <materialDesign:PackIcon Kind="Incognito"
+                                                             Width="35"
+                                                             Height="35">
+                                        <materialDesign:PackIcon.Foreground>
+                                            <MultiBinding Converter="{StaticResource BoolToColorMultiConverter}">
+                                                <Binding Path="SearchIsReadyVariable" />
+                                                <Binding Path="TorEnabled" />
+                                                <!-- Add more bindings as needed -->
+                                            </MultiBinding>
+                                        </materialDesign:PackIcon.Foreground>
+                                    </materialDesign:PackIcon>
+
+                                    <!-- ContextMenu for the button -->
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Change Tor Node"
+                                                      Cursor="Hand"
+                                                      Command="{Binding ChangeTorNodeCommand}" />
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                </Button>
+
 
                                 <ProgressBar IsIndeterminate="True"
-                                             Width="40"
-                                             Height="40"
+                                             Width="50"
+                                             Height="50"
                                              Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
                                              Style="{DynamicResource MaterialDesignCircularProgressBar}" />
+                                <!--#endregion-->
 
                             </StackPanel>
                             <!--#endregion-->
