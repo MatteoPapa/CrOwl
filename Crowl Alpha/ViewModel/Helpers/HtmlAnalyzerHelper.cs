@@ -35,6 +35,7 @@ namespace Crowl_Alpha.Model
             {
                 NodeType = node.NodeType == HtmlNodeType.Element ? "Element" : "Text",
                 Name = node.Name,
+                DataUid= node.GetAttributeValue("data-uid",null),
                 InnerText = node.NodeType == HtmlNodeType.Text ? node.InnerText.Trim() : string.Empty,
                 Parent = parent
             };

@@ -65,6 +65,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\HtmlNodeInfo.cs" />
+    <Compile Include="Model\JsInteraction.cs" />
     <Compile Include="ViewModel\Commands\BrowserGoForwardCommand.cs" />
     <Compile Include="ViewModel\Commands\BrowserGoBackCommand.cs" />
     <Compile Include="ViewModel\Commands\GoToUrlCommand.cs" />

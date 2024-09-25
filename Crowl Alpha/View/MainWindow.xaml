@@ -293,20 +293,28 @@
                                     Command="{Binding AnalyzeCommand}" />
 
                         </StackPanel>
-                        <TreeView ItemsSource="{Binding HtmlNodes}" Grid.Row="1">
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TreeView ItemsSource="{Binding HtmlNodes}" Grid.Row="1">
                             <TreeView.Resources>
                                 <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
                                 <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
-                                                          ItemsSource="{Binding Children}">
+                                                          ItemsSource="{Binding Children}" >
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding Name}"
-                                                   FontWeight="Bold" />
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource MaterialDesign.Brush.Primary}"/>
                                         <TextBlock Text=": " />
                                         <TextBlock Text="{Binding InnerText}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.Resources>
                         </TreeView>
+                        </Grid>
+                        
                     </Grid>
 
                     <!--#region GridSplitter-->

@@ -4,7 +4,7 @@ using Crowl_Alpha.Model;
 using Crowl_Alpha.View;
 using Crowl_Alpha.ViewModel.Commands;
 using Crowl_Alpha.ViewModel.Helpers;
-using HtmlAgilityPack;
+using Microsoft.Xaml.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -78,6 +78,7 @@ namespace Crowl_Alpha.ViewModel
             set
             {
                 searchedUrl = value;
+                (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 OnPropertyChanged("SearchedUrl");
             }
         }
@@ -306,7 +307,6 @@ namespace Crowl_Alpha.ViewModel
         }
 
         private ChromiumWebBrowser browser;
-
         public ChromiumWebBrowser Browser
         {
             get => browser;
@@ -323,6 +323,7 @@ namespace Crowl_Alpha.ViewModel
                     browser = value;
                     browser.LoadingStateChanged += OnBrowserLoadingStateChanged;
                     browser.AddressChanged += OnBrowserAddressChanged;
+                    browser.JavascriptMessageReceived += Browser_JavascriptMessageReceived;
                     OnPropertyChanged("Browser");
                 }
 
@@ -339,7 +340,10 @@ namespace Crowl_Alpha.ViewModel
 
                 // Invalidate the command states to refresh the UI
                 CommandManager.InvalidateRequerySuggested();
+                
+                AnalyzeCleanup();
             });
+            
         }
         private void OnBrowserAddressChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -354,6 +358,8 @@ namespace Crowl_Alpha.ViewModel
                     SearchedUrl = browser.Address; // Assuming searchUrl is a property or field
                 }
                 CommandManager.InvalidateRequerySuggested();
+
+                AnalyzeCleanup();
             });
         }
         public void ExecuteBackCommand()
@@ -380,8 +386,29 @@ namespace Crowl_Alpha.ViewModel
 
         #region Analyze Section
 
-        private ObservableCollection<HtmlNodeInfo> htmlNodes;
+        private string analyzedUrl;
+        public string AnalyzedUrl
+        {
+            get { return analyzedUrl; }
+            set
+            {
+                analyzedUrl = value;
+                OnPropertyChanged("AnalyzedUrl");
+            }
+        }
 
+        private HtmlNodeInfo rootNode;
+        public HtmlNodeInfo RootNode
+        {
+            get { return rootNode; }
+            set
+            {
+                rootNode = value;
+                OnPropertyChanged("RootNode");
+            }
+        }
+
+        private ObservableCollection<HtmlNodeInfo> htmlNodes;
         public ObservableCollection<HtmlNodeInfo> HtmlNodes
         {
             get { return htmlNodes; }
@@ -392,14 +419,28 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-
         private bool CanExecuteAnalyzeCommand()
         {
-            return true;
+            //Check if the url was already analyzed
+            if (!string.IsNullOrEmpty(AnalyzedUrl) || RootNode != null || HtmlNodes != null || SearchedUrl==null )
+            {
+                return false;
+            }
+            else return true;
         }
-
         private async void ExecuteAnalyzeCommand()
         {
+            //Check if the url was already analyzed
+            if (!string.IsNullOrEmpty(AnalyzedUrl) || RootNode != null || HtmlNodes != null)
+            {
+                return;
+            }
+
+            bool injectionDataUidResult = await InjectDataUid();
+            if (!injectionDataUidResult) return; //Data UID Injection Failed
+
+            InjectClickListener();
+
             try
             {
                 // Retrieve the HTML source asynchronously
@@ -414,19 +455,117 @@ namespace Crowl_Alpha.ViewModel
                 MessageBox.Show($"Error during analysis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void StartHtmlFragmentation(string html)
         {
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(html);
             HtmlNodeInfo rootNodeInfo = HtmlAnalyzerHelper.AnalyzeHtml(doc);
 
-            // Initialize the observable collection and add the root node
+            //Setting Props after Analysis
             HtmlNodes = new ObservableCollection<HtmlNodeInfo> { rootNodeInfo };
+            RootNode = rootNodeInfo;
+            AnalyzedUrl = SearchedUrl;
 
-            // Notify that the HtmlNodes collection has changed
+            //CanExecuteChanged of AnalyzeCommand
+            (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
+
+            // Notify that the HtmlNodes collection has changed (Do I Really need this?)
             OnPropertyChanged("HtmlNodes");
         }
+        private async Task<bool> InjectDataUid()
+        {
+            var script = @"
+                (function() {
+                    var uidCounter = 0;
+
+                    function assignUids(element) {
+                        if (element.nodeType === Node.ELEMENT_NODE) {
+                            if (!element.hasAttribute('data-uid')) {
+                                element.setAttribute('data-uid', 'uid-' + uidCounter++);
+                            }
+                            var children = element.children;
+                            for (var i = 0; i < children.length; i++) {
+                                assignUids(children[i]);
+                            }
+                        }
+                    }
+
+                    assignUids(document.body);
+                })();
+            ";
+
+            var response = await Browser.EvaluateScriptAsync(script);
+            if (response.Success)
+            {
+                return true;
+            }
+            else
+            {
+                Debug.WriteLine("Script execution failed: " + response.Message);
+                return false;
+            }
+        }
+        private void InjectClickListener()
+        {
+            var script = @"
+                document.addEventListener('click', function(event) {
+                    var element = event.target;
+                    var dataUid = element.getAttribute('data-uid');
+                    if (dataUid) {
+                        CefSharp.PostMessage(dataUid);
+                    }
+                }, true);
+            ";
+
+            Browser.ExecuteScriptAsync(script);
+        }
+        private void Browser_JavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
+        {
+            // The message is the data-uid of the clicked element
+            var dataUid = e.Message as string;
+            Debug.WriteLine("DataUID: " + dataUid);
+            //// Find the corresponding HtmlNodeInfo
+            //var htmlNodeInfo = FindHtmlNodeInfoByUid(RootHtmlNodeInfo, dataUid);
+
+            //// Update the UI on the main thread
+            //Dispatcher.Invoke(() => {
+            //    if (htmlNodeInfo != null)
+            //    {
+            //        // Select the node in the TreeView or perform other actions
+            //        SelectTreeViewItem(htmlNodeInfo);
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show($"No HtmlNodeInfo found for data-uid: {dataUid}");
+            //    }
+            //});
+        }
+        private HtmlNodeInfo FindHtmlNodeInfoByUid(HtmlNodeInfo node, string dataUid)
+        {
+            if (node.DataUid == dataUid)
+                return node;
+
+            foreach (var child in node.Children)
+            {
+                var result = FindHtmlNodeInfoByUid(child, dataUid);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        private void AnalyzeCleanup()
+        {
+            AnalyzedUrl = null;
+            RootNode = null;
+            HtmlNodes = null;
+
+            //CanExecuteChanged of AnalyzeCommand
+            (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
+
+        }
+
         #endregion
 
         #region PropertyChanged
