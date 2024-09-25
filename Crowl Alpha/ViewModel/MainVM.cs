@@ -177,9 +177,18 @@ namespace Crowl_Alpha.ViewModel
         public void DeactivateTor()
         {
 
-            ProcessHelper.killProcess(torProcess);
-            torProcess = null;
-            ExecuteToggleProxy();
+            bool wasKilled = ProcessHelper.KillProcess(torProcess);
+
+            if (wasKilled)
+            {
+                torProcess = null;
+                ExecuteToggleProxy();
+                Debug.WriteLine("DeactivateTor: Tor process killed successfully. Proxy toggled.");
+            }
+            else
+            {
+                Debug.WriteLine("DeactivateTor: Failed to kill the Tor process. Proxy toggle aborted.");
+            }
         }
 
         private void TorIsReady()
@@ -236,6 +245,9 @@ namespace Crowl_Alpha.ViewModel
         private async void ExecuteChangeTorNode()
         {
             await TorControlHelper.ChangeTorNode();
+
+            await Task.Delay(100);
+
             browser.Reload();
 
             // Disable the MenuItem

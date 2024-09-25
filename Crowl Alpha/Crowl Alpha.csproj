@@ -71,6 +71,7 @@
     <Compile Include="ViewModel\Commands\TorSwitchCommand.cs" />
     <Compile Include="ViewModel\Helpers\ProcessHelper.cs" />
     <Compile Include="ViewModel\Helpers\ResourceExtractorTorHelper.cs" />
+    <Compile Include="ViewModel\Helpers\RestartManagerHelper.cs" />
     <Compile Include="ViewModel\Helpers\TorControlHelper.cs" />
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToColorMultiConverter.cs" />

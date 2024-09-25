@@ -20,16 +20,31 @@ namespace Crowl_Alpha.ViewModel.Helpers
             // Define the path to extract the .exe to (e.g., Temp folder)
             string tempPath = Path.Combine(Path.GetTempPath(), exe);
 
-            // Check if the file already exists, delete it if necessary
+            // Check if the file already exists, eventually try to retrieve it
             if (File.Exists(tempPath))
             {
                 try
                 {
-                    File.Delete(tempPath);
+                    // Retrieve the list of processes locking the file
+                    var lockingProcesses = RestartManagerHelper.GetProcessesLockingFile(tempPath);
+
+                    if (lockingProcesses.Count > 0)
+                    {
+                        // For demonstration, return the first locking process
+                        // You can modify this logic as needed
+                        Debug.WriteLine("Retrieved process ID:" + lockingProcesses[0].Id);
+                        TorReady?.Invoke();
+                        return lockingProcesses[0];
+                    }
+                    else
+                    {
+                        // No locking processes found, safe to delete
+                        File.Delete(tempPath);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to delete the temporary file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Failed to delete the temporary file or retrieve locking process: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
             }
