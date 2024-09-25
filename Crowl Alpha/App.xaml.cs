@@ -17,6 +17,8 @@ namespace Crowl_Alpha
 
             #region Cef Initialize
             var settings = new CefSettings();
+
+            settings.CefCommandLineArgs.Add("disable-back-forward-cache", "1");
             settings.DisableGpuAcceleration(); // Disable DPI scaling  
 
             // Initialize the CefSharp browser with custom settings  

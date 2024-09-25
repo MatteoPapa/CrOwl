@@ -1,5 +1,4 @@
-﻿using CefSharp.Wpf;
-using System;
+﻿using System;
 using System.Windows.Input;
 
 namespace Crowl_Alpha.ViewModel.Commands

@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Crowl_Alpha.ViewModel
 {
@@ -355,19 +356,22 @@ namespace Crowl_Alpha.ViewModel
                 CommandManager.InvalidateRequerySuggested();
             });
         }
-
         public void ExecuteBackCommand()
         {
             if (browser?.CanGoBack == true)
+            {
                 Browser.Back();
+            }
+
             CanGoBack = browser.CanGoBack;
             CanGoForward = browser.CanGoForward;
         }
-
         public void ExecuteForwardCommand()
         {
-            if (Browser?.CanGoForward == true)
+            if (browser?.CanGoForward == true)
+            {
                 Browser.Forward();
+            }
             CanGoBack = browser.CanGoBack;
             CanGoForward = browser.CanGoForward;
         }
