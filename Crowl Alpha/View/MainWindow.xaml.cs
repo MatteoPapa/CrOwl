@@ -49,6 +49,7 @@ namespace Crowl_Alpha.View
             BindingOperations.ClearBinding(browser, ChromiumWebBrowser.AddressProperty);
             var binding = new Binding("SearchedUrl") { Source = MainVM };
             BindingOperations.SetBinding(browser, ChromiumWebBrowser.AddressProperty, binding);
+            MainVM.Browser= browser;
         }
 
         public void ApplyProxySettings(bool useProxy)

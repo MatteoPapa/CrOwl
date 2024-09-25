@@ -64,6 +64,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ViewModel\Commands\BrowserGoForwardCommand.cs" />
+    <Compile Include="ViewModel\Commands\BrowserGoBackCommand.cs" />
     <Compile Include="ViewModel\Commands\GoToUrlCommand.cs" />
     <Compile Include="ViewModel\Commands\TorSwitchCommand.cs" />
     <Compile Include="ViewModel\Helpers\ProcessHelper.cs" />

@@ -1,6 +1,9 @@
-﻿using Crowl_Alpha.View;
+﻿using CefSharp;
+using CefSharp.Wpf;
+using Crowl_Alpha.View;
 using Crowl_Alpha.ViewModel.Commands;
 using Crowl_Alpha.ViewModel.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -20,7 +23,27 @@ namespace Crowl_Alpha.ViewModel
         #region Commands
         public TorSwitchCommand TorSwitchCommand { get; set; }
         public GoToUrlCommand GoToUrlCommand { get; set; }
+        public BrowserGoBackCommand BrowserGoBackCommand { get; set; }
+        public BrowserGoForwardCommand BrowserGoForwardCommand { get; set; }
         public object ResourceExtractorTor { get; private set; }
+
+        #endregion
+
+        #region Constructor
+        public MainVM()
+        {
+            TorSwitchCommand = new TorSwitchCommand(this);
+            GoToUrlCommand = new GoToUrlCommand(this);
+            BrowserGoBackCommand = new BrowserGoBackCommand(this);
+            BrowserGoForwardCommand = new BrowserGoForwardCommand(this);
+
+            //Subscription to the TorIsReadyEvent
+            ResourceExtractorTorHelper.TorReady += TorIsReady;
+
+            //Initializing variables
+            SearchIsReadyVariable = true;
+            Url = "https://check.torproject.org/";
+        }
 
         #endregion
 
@@ -50,15 +73,22 @@ namespace Crowl_Alpha.ViewModel
         {
             if (url != null && SearchIsReadyVariable)
             {
-                if (torEnabled)
+                if (string.IsNullOrEmpty(SearchedUrl) || url!=SearchedUrl)
                 {
-                    Debug.WriteLine($"Visiting {Url} with Tor");
+                    if (torEnabled)
+                    {
+                        Debug.WriteLine($"Visiting {Url} with Tor");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Visiting {Url} without Tor");
+                    }
                     SearchedUrl = Url;
                 }
                 else
                 {
-                    Debug.WriteLine($"Visiting {Url} without Tor");
-                    SearchedUrl = Url;
+                    Debug.WriteLine("Reloading browser");
+                    browser.Reload();
                 }
             }
         }
@@ -172,18 +202,104 @@ namespace Crowl_Alpha.ViewModel
 
         #endregion
 
-        #region Constructor
-        public MainVM()
+        #region Browser Navigation
+
+        private bool canGoBack;
+
+        public bool CanGoBack
         {
-            TorSwitchCommand = new TorSwitchCommand(this);
-            GoToUrlCommand = new GoToUrlCommand(this);
+            get => canGoBack;
+            set
+            {
+                if (canGoBack != value)
+                {
+                    canGoBack = value;
+                    OnPropertyChanged("CanGoBack");
+                }
+            }
+        }
 
-            //Subscription to the TorIsReadyEvent
-            ResourceExtractorTorHelper.TorReady += TorIsReady;
+        private bool canGoForward;
 
-            //Initializing variables
-            SearchIsReadyVariable = true;
-            Url = "https://check.torproject.org/";
+        public bool CanGoForward
+        {
+            get => canGoForward;
+            set
+            {
+                if (canGoForward != value)
+                {
+                    canGoForward = value;
+                    OnPropertyChanged("CanGoForward");
+                }
+            }
+        }
+
+        private ChromiumWebBrowser browser;
+
+        public ChromiumWebBrowser Browser
+        {
+            get => browser;
+            set
+            {
+                if (browser != null)
+                {
+                    browser.LoadingStateChanged -= OnBrowserLoadingStateChanged;
+                    browser.AddressChanged -= OnBrowserAddressChanged;
+                }
+
+                if (value != null)
+                {
+                    browser = value;
+                    browser.LoadingStateChanged += OnBrowserLoadingStateChanged;
+                    browser.AddressChanged += OnBrowserAddressChanged;
+                    OnPropertyChanged("Browser");
+                }
+
+            }
+        }
+        private void OnBrowserLoadingStateChanged(object sender, CefSharp.LoadingStateChangedEventArgs e)
+        {
+            // Ensure this runs on the UI thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // These are updated immediately as the navigation state changes
+                CanGoForward = e.CanGoForward;
+                CanGoBack = e.CanGoBack;
+
+                // Invalidate the command states to refresh the UI
+                CommandManager.InvalidateRequerySuggested();
+            });
+        }
+        private void OnBrowserAddressChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                CanGoBack = browser.CanGoBack;
+                CanGoForward = browser.CanGoForward;
+                // Update searchUrl with the current browser address
+                if (browser != null)
+                {
+                    Url = browser.Address;
+                    SearchedUrl = browser.Address; // Assuming searchUrl is a property or field
+                }
+                CommandManager.InvalidateRequerySuggested();
+            });
+        }
+
+        public void ExecuteBackCommand()
+        {
+            if (browser?.CanGoBack == true)
+                Browser.Back();
+            CanGoBack = browser.CanGoBack;
+            CanGoForward = browser.CanGoForward;
+        }
+
+        public void ExecuteForwardCommand()
+        {
+            if (Browser?.CanGoForward == true)
+                Browser.Forward();
+            CanGoBack = browser.CanGoBack;
+            CanGoForward = browser.CanGoForward;
         }
 
         #endregion
