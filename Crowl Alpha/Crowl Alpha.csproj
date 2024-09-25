@@ -70,6 +70,7 @@
     <Compile Include="ViewModel\Helpers\ResourceExtractorTorHelper.cs" />
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToColorMultiConverter.cs" />
+    <Compile Include="ViewModel\ValueConverters\BoolToVisibilityConverter.cs" />
     <Compile Include="View\Controls\TitleBarControl.xaml.cs">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
     </Compile>

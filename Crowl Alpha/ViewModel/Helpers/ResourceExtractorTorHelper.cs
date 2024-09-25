@@ -15,7 +15,6 @@ namespace Crowl_Alpha.ViewModel.Helpers
         {
             string resourceName = $"Crowl_Alpha.Resources.{exe}";
 
-            // Get the current assembly
             Assembly assembly = Assembly.GetExecutingAssembly();
 
             // Define the path to extract the .exe to (e.g., Temp folder)
@@ -60,10 +59,10 @@ namespace Crowl_Alpha.ViewModel.Helpers
                 {
                     Console.WriteLine(e.Data);
 
-                    // Check for the Tor "Bootstrapped 100%" message
+                    // Is It Ready ?
                     if (e.Data.Contains("Bootstrapped 100% (done): Done"))
                     {
-                        TorReady?.Invoke(); // Signal that Tor is ready
+                        TorReady?.Invoke(); 
                     }
                 }
             };

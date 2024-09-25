@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 
+
 namespace Crowl_Alpha.ViewModel
 {
     public class MainVM : INotifyPropertyChanged
@@ -170,6 +171,8 @@ namespace Crowl_Alpha.ViewModel
 
 
         #endregion
+
+
 
         #region Constructor
         public MainVM()

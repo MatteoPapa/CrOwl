@@ -9,11 +9,8 @@
         xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
         xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
         xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
-        
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
-        TextElement.FontWeight="Medium"
-        TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
         mc:Ignorable="d"
         Title="CrOwl"
@@ -22,35 +19,37 @@
         AllowsTransparency="True"
         Background="Transparent"
         ResizeMode="CanResize"
-        
         Closing="Window_Closing"
-
         Height="972"
         Width="1728">
 
-    <!-- Window Resources -->
+    <!-- #region Window Resources -->
     <Window.Resources>
         <vm:MainVM x:Key="vm" />
         <converters:BoolToColorMultiConverter x:Key="BoolToColorMultiConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
-    
-    <!--Window chrome -->
+    <!--#endregion-->
+
+    <!--#region Window Chrome-->
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0"
                       ResizeBorderThickness="5"
                       CornerRadius="10"
                       GlassFrameThickness="0" />
     </WindowChrome.WindowChrome>
-    
+    <!--#endregion-->
 
     <Border BorderBrush="#44FFFFFF"
             BorderThickness="1"
             CornerRadius="10"
             Background="{DynamicResource MaterialDesign.Brush.Background}">
-        <DockPanel >
+        <DockPanel>
 
-            <!-- Custom Title Bar -->
+            <!--#region Custom Title Bar -->
             <uc:TitleBarControl DockPanel.Dock="Top" />
+            <!--#endregion-->
+
 
             <!-- Main Content Area -->
             <Grid DataContext="{Binding Source={StaticResource vm}}">
@@ -168,7 +167,9 @@
                                 <ToggleButton Margin="15 0"
                                               IsChecked="{Binding TorEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               Command="{Binding TorSwitchCommand}" />
+
                                 <materialDesign:PackIcon Kind="Incognito"
+                                                         Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}}"
                                                          VerticalAlignment="Center"
                                                          Width="40"
                                                          Height="40">
@@ -180,6 +181,13 @@
                                         </MultiBinding>
                                     </materialDesign:PackIcon.Foreground>
                                 </materialDesign:PackIcon>
+
+                                <ProgressBar IsIndeterminate="True"
+                                             Width="40"
+                                             Height="40"
+                                             Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                                             Style="{DynamicResource MaterialDesignCircularProgressBar}" />
+
                             </StackPanel>
                             <!--#endregion-->
 
@@ -199,7 +207,7 @@
                     <!--#endregion-->
 
                 </Grid>
-                
+
                 <!--#endregion-->
 
                 <!--#region GridSplitter-->
