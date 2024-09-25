@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 
 namespace Crowl_Alpha.ViewModel
@@ -25,7 +27,8 @@ namespace Crowl_Alpha.ViewModel
         public GoToUrlCommand GoToUrlCommand { get; set; }
         public BrowserGoBackCommand BrowserGoBackCommand { get; set; }
         public BrowserGoForwardCommand BrowserGoForwardCommand { get; set; }
-        public ChangeTorNodeCommand ChangeTorNodeCommand { get; set; }
+
+        public ICommand ChangeTorNodeCommand { get; }
         public object ResourceExtractorTor { get; private set; }
 
         #endregion
@@ -37,7 +40,10 @@ namespace Crowl_Alpha.ViewModel
             GoToUrlCommand = new GoToUrlCommand(this);
             BrowserGoBackCommand = new BrowserGoBackCommand(this);
             BrowserGoForwardCommand = new BrowserGoForwardCommand(this);
-            ChangeTorNodeCommand = new ChangeTorNodeCommand(this);
+
+            //Trying RelayCommand
+
+            ChangeTorNodeCommand = new RelayCommand(ExecuteChangeTorNode, CanExecuteChangeTorNode);
 
             //Subscription to the TorIsReadyEvent
             ResourceExtractorTorHelper.TorReady += TorIsReady;
@@ -210,13 +216,42 @@ namespace Crowl_Alpha.ViewModel
             });
         }
 
-        public async void ChangeTorNode()
+        private bool _isTimerFinished = true;
+        public bool IsTimerFinished
         {
-            if (torEnabled)
+            get => _isTimerFinished;
+            set
             {
-                await TorControlHelper.ChangeTorNode();
-                browser.Reload();
+                if (_isTimerFinished != value)
+                {
+                    _isTimerFinished = value;
+                    OnPropertyChanged(nameof(IsTimerFinished));
+                }
             }
+        }
+        private bool CanExecuteChangeTorNode()
+        {
+            return IsTimerFinished;
+        }
+        private async void ExecuteChangeTorNode()
+        {
+            await TorControlHelper.ChangeTorNode();
+            browser.Reload();
+
+            // Disable the MenuItem
+            IsTimerFinished = false;
+
+            // Notify that CanExecute may have changed
+            (ChangeTorNodeCommand as RelayCommand)?.RaiseCanExecuteChanged();
+
+            // Wait for 10 seconds
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            // Re-enable the MenuItem
+            IsTimerFinished = true;
+
+            // Notify that CanExecute may have changed
+            (ChangeTorNodeCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         #endregion

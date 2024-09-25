@@ -170,8 +170,6 @@
                             </Grid>
                             <!--#endregion-->
 
-
-
                             <!--#region Incognito ToggleSwitch -->
                             <StackPanel Grid.Column="3"
                                         Orientation="Horizontal"
@@ -211,13 +209,28 @@
                                     <!-- ContextMenu for the button -->
                                     <Button.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="Change Tor Node"
+                                            <MenuItem Header="New IP Address"
                                                       Cursor="Hand"
-                                                      Command="{Binding ChangeTorNodeCommand}" />
+                                                      ToolTipService.ShowOnDisabled="True"
+                                                      Command="{Binding ChangeTorNodeCommand}"
+                                                      VerticalContentAlignment="Bottom"
+                                                      Padding="10 0">
+                                                <!-- Icon for the MenuItem -->
+                                                <MenuItem.Icon>
+                                                    <materialDesign:PackIcon Kind="Ip"
+                                                                             Width="16"
+                                                                             Height="16" />
+                                                </MenuItem.Icon>
+                                                <!-- Static Tooltip -->
+                                                <MenuItem.ToolTip>
+                                                    <ToolTip Visibility="{Binding IsTimerFinished, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
+                                                    You can request a new IP address once every 10 seconds.
+                                                    </ToolTip>
+                                                </MenuItem.ToolTip>
+                                            </MenuItem>
                                         </ContextMenu>
                                     </Button.ContextMenu>
                                 </Button>
-
 
                                 <ProgressBar IsIndeterminate="True"
                                              Width="50"

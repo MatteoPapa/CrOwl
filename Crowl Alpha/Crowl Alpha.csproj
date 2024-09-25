@@ -66,8 +66,8 @@
     </Compile>
     <Compile Include="ViewModel\Commands\BrowserGoForwardCommand.cs" />
     <Compile Include="ViewModel\Commands\BrowserGoBackCommand.cs" />
-    <Compile Include="ViewModel\Commands\ChangeTorNodeCommand.cs" />
     <Compile Include="ViewModel\Commands\GoToUrlCommand.cs" />
+    <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="ViewModel\Commands\TorSwitchCommand.cs" />
     <Compile Include="ViewModel\Helpers\ProcessHelper.cs" />
     <Compile Include="ViewModel\Helpers\ResourceExtractorTorHelper.cs" />
