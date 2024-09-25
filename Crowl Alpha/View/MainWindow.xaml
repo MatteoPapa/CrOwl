@@ -9,6 +9,7 @@
         xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
         xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
         xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:model="clr-namespace:Crowl_Alpha.Model"
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
         FontFamily="{materialDesign:MaterialDesignFont}"
@@ -117,7 +118,6 @@
                             <Button Grid.Column="1"
                                     Command="{Binding GoToUrlCommand, UpdateSourceTrigger=PropertyChanged}"
                                     CommandParameter="{Binding SearchIsReadyVariable}"
-                                    Style="{DynamicResource MaterialDesignFlatDarkBgButton}"
                                     Width="50"
                                     HorizontalAlignment="Center"
                                     HorizontalContentAlignment="Left"
@@ -224,7 +224,7 @@
                                                 <!-- Static Tooltip -->
                                                 <MenuItem.ToolTip>
                                                     <ToolTip Visibility="{Binding IsTimerFinished, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
-                                                    You can request a new IP address once every 10 seconds.
+                                                        You can request a new IP address once every 10 seconds.
                                                     </ToolTip>
                                                 </MenuItem.ToolTip>
                                             </MenuItem>
@@ -271,9 +271,56 @@
                               ShowsPreview="True" />
                 <!--#endregion-->
 
+                <!--#region Analyze Section -->
                 <Grid Grid.Column="2">
-                </Grid>
 
+                    <!--#region Analyze Grid Definition-->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="2" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <!--#endregion-->
+
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="10" Grid.Row="0">
+                            <Button Content="Analyze"
+                                    Width="200"
+                                    Command="{Binding AnalyzeCommand}" />
+
+                        </StackPanel>
+                        <TreeView ItemsSource="{Binding HtmlNodes}" Grid.Row="1">
+                            <TreeView.Resources>
+                                <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
+                                <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
+                                                          ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontWeight="Bold" />
+                                        <TextBlock Text=": " />
+                                        <TextBlock Text="{Binding InnerText}" />
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Grid>
+
+                    <!--#region GridSplitter-->
+                    <GridSplitter Grid.Row="1"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Height="2"
+                                  Background="#22FFFFFF"
+                                  ResizeBehavior="PreviousAndNext"
+                                  ShowsPreview="True" />
+                    <!--#endregion-->
+
+                </Grid>
+                <!--#endregion-->
             </Grid>
         </DockPanel>
     </Border>

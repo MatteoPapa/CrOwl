@@ -1,10 +1,13 @@
 ﻿using CefSharp;
 using CefSharp.Wpf;
+using Crowl_Alpha.Model;
 using Crowl_Alpha.View;
 using Crowl_Alpha.ViewModel.Commands;
 using Crowl_Alpha.ViewModel.Helpers;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -26,7 +29,9 @@ namespace Crowl_Alpha.ViewModel
         public BrowserGoBackCommand BrowserGoBackCommand { get; set; }
         public BrowserGoForwardCommand BrowserGoForwardCommand { get; set; }
 
+        //Relay Commands
         public ICommand ChangeTorNodeCommand { get; }
+        public ICommand AnalyzeCommand { get; }
         public object ResourceExtractorTor { get; private set; }
 
         #endregion
@@ -42,6 +47,7 @@ namespace Crowl_Alpha.ViewModel
             //Trying RelayCommand
 
             ChangeTorNodeCommand = new RelayCommand(ExecuteChangeTorNode, CanExecuteChangeTorNode);
+            AnalyzeCommand = new RelayCommand(ExecuteAnalyzeCommand, CanExecuteAnalyzeCommand);
 
             //Subscription to the TorIsReadyEvent
             ResourceExtractorTorHelper.TorReady += TorIsReady;
@@ -366,6 +372,57 @@ namespace Crowl_Alpha.ViewModel
             CanGoForward = browser.CanGoForward;
         }
 
+        #endregion
+
+        #region Analyze Section
+
+        private ObservableCollection<HtmlNodeInfo> htmlNodes;
+
+        public ObservableCollection<HtmlNodeInfo> HtmlNodes
+        {
+            get { return htmlNodes; }
+            set
+            {
+                htmlNodes = value;
+                OnPropertyChanged("HtmlNodes");
+            }
+        }
+
+
+        private bool CanExecuteAnalyzeCommand()
+        {
+            return true;
+        }
+
+        private async void ExecuteAnalyzeCommand()
+        {
+            try
+            {
+                // Retrieve the HTML source asynchronously
+                string html = await browser.GetSourceAsync();
+
+                // Perform analysis on the HTML
+                StartHtmlFragmentation(html);
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that occur during analysis
+                MessageBox.Show($"Error during analysis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void StartHtmlFragmentation(string html)
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(html);
+            HtmlNodeInfo rootNodeInfo = HtmlAnalyzerHelper.AnalyzeHtml(doc);
+
+            // Initialize the observable collection and add the root node
+            HtmlNodes = new ObservableCollection<HtmlNodeInfo> { rootNodeInfo };
+
+            // Notify that the HtmlNodes collection has changed
+            OnPropertyChanged("HtmlNodes");
+        }
         #endregion
 
         #region PropertyChanged

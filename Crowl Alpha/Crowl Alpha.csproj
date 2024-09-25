@@ -64,11 +64,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\HtmlNodeInfo.cs" />
     <Compile Include="ViewModel\Commands\BrowserGoForwardCommand.cs" />
     <Compile Include="ViewModel\Commands\BrowserGoBackCommand.cs" />
     <Compile Include="ViewModel\Commands\GoToUrlCommand.cs" />
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="ViewModel\Commands\TorSwitchCommand.cs" />
+    <Compile Include="ViewModel\Helpers\HtmlAnalyzerHelper.cs" />
     <Compile Include="ViewModel\Helpers\ProcessHelper.cs" />
     <Compile Include="ViewModel\Helpers\ResourceExtractorTorHelper.cs" />
     <Compile Include="ViewModel\Helpers\RestartManagerHelper.cs" />
@@ -122,9 +124,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="View\Images\crowlLogo.png" />
   </ItemGroup>
@@ -140,6 +140,9 @@
   <ItemGroup>
     <PackageReference Include="CefSharp.Wpf">
       <Version>128.4.90</Version>
+    </PackageReference>
+    <PackageReference Include="HtmlAgilityPack">
+      <Version>1.11.66</Version>
     </PackageReference>
     <PackageReference Include="HttpToSocks5Proxy">
       <Version>1.4.0</Version>
