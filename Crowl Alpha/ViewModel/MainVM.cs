@@ -14,11 +14,23 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Resources;
-using System.Windows.Threading;
 using static Crowl_Alpha.View.Behaviors.TreeViewSelectedItemBehavior;
 
 namespace Crowl_Alpha.ViewModel
 {
+    //TODO:     Generic
+    /// - Analyze Toolbar Check and Fix
+    /// - Freeze the website
+    /// - Highlight SelectedItem in Browser
+    /// - New Browser on New Ip Address
+    /// -  
+
+    //TODO:     AI Stuff
+    /// - Scraping Section
+    /// - AI: Chat System -> Understand the target element(s)
+    /// - AI:? Automatic creation of scraping code
+    /// - AI: Run an automated scraper that collects data
+
     public class MainVM : INotifyPropertyChanged
     {
         #region Generic Props
@@ -717,6 +729,7 @@ namespace Crowl_Alpha.ViewModel
                     }
                     else
                     {
+                        Debug.WriteLine("Deactivate");
                         RemoveClickListener();
                     }
                 }
@@ -725,31 +738,29 @@ namespace Crowl_Alpha.ViewModel
         private void InjectClickListener()
         {
             var script = @"
-                document.addEventListener('click', function(event) {
-                    var element = event.target;
-                    var dataUid = element.getAttribute('data-uid');
-                    if (dataUid) {
-                        CefSharp.PostMessage(dataUid);
-                    }
-                }, true);
-            ";
+                    var clickListener = function(event) {
+                        var element = event.target;
+                        var dataUid = element.getAttribute('data-uid');
+                        if (dataUid) {
+                            CefSharp.PostMessage(dataUid);
+                        }
+                    };
+
+                    document.addEventListener('click', clickListener, true);
+                ";
 
             browser.ExecuteScriptAsync(script);
         }
+
         public void RemoveClickListener()
         {
             var script = @"
-            document.removeEventListener('click', function(event) {
-                var element = event.target;
-                var dataUid = element.getAttribute('data-uid');
-                if (dataUid) {
-                    CefSharp.PostMessage(dataUid);
-                }
-            }, true);
-        ";
+                    document.removeEventListener('click', clickListener, true);
+                ";
 
             browser.ExecuteScriptAsync(script);
         }
+
 
         #endregion
 
