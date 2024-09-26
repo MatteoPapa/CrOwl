@@ -4,7 +4,6 @@ using Crowl_Alpha.Model;
 using Crowl_Alpha.View;
 using Crowl_Alpha.ViewModel.Commands;
 using Crowl_Alpha.ViewModel.Helpers;
-using Microsoft.Xaml.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +12,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
+using static Crowl_Alpha.View.Behaviors.TreeViewSelectedItemBehavior;
 
 namespace Crowl_Alpha.ViewModel
 {
@@ -56,6 +55,9 @@ namespace Crowl_Alpha.ViewModel
             //Initializing variables
             SearchIsReadyVariable = true;
             Url = "https://check.torproject.org/";
+
+            //Two years later... I found this fix, DON'T REMOVE THAT
+            SelectedNode = new HtmlNodeInfo();
         }
 
         #endregion
@@ -103,6 +105,7 @@ namespace Crowl_Alpha.ViewModel
                 {
                     Debug.WriteLine("Reloading browser");
                     browser.Reload();
+                    AnalyzeCleanup();
                 }
             }
         }
@@ -321,6 +324,7 @@ namespace Crowl_Alpha.ViewModel
                 if (value != null)
                 {
                     browser = value;
+                    AnalyzeCleanup();
                     browser.LoadingStateChanged += OnBrowserLoadingStateChanged;
                     browser.AddressChanged += OnBrowserAddressChanged;
                     browser.JavascriptMessageReceived += Browser_JavascriptMessageReceived;
@@ -340,10 +344,8 @@ namespace Crowl_Alpha.ViewModel
 
                 // Invalidate the command states to refresh the UI
                 CommandManager.InvalidateRequerySuggested();
-                
-                AnalyzeCleanup();
             });
-            
+
         }
         private void OnBrowserAddressChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -419,10 +421,25 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
+        private HtmlNodeInfo _selectedNode;
+        public HtmlNodeInfo SelectedNode
+        {
+            get => _selectedNode;
+            set
+            {
+                if (_selectedNode != value)
+                {
+                    _selectedNode = value;
+                    OnPropertyChanged(nameof(SelectedNode));
+                    Debug.WriteLine($"SelectedNode ID: {SelectedNode.DataUid}");
+                }
+            }
+        }
+
         private bool CanExecuteAnalyzeCommand()
         {
             //Check if the url was already analyzed
-            if (!string.IsNullOrEmpty(AnalyzedUrl) || RootNode != null || HtmlNodes != null || SearchedUrl==null )
+            if (!string.IsNullOrEmpty(AnalyzedUrl) || RootNode != null || HtmlNodes != null || SearchedUrl == null)
             {
                 return false;
             }
@@ -436,9 +453,7 @@ namespace Crowl_Alpha.ViewModel
                 return;
             }
 
-            bool injectionDataUidResult = await InjectDataUid();
-            if (!injectionDataUidResult) return; //Data UID Injection Failed
-
+            InjectDataUid();
             InjectClickListener();
 
             try
@@ -472,7 +487,7 @@ namespace Crowl_Alpha.ViewModel
             // Notify that the HtmlNodes collection has changed (Do I Really need this?)
             OnPropertyChanged("HtmlNodes");
         }
-        private async Task<bool> InjectDataUid()
+        private void InjectDataUid()
         {
             var script = @"
                 (function() {
@@ -494,16 +509,7 @@ namespace Crowl_Alpha.ViewModel
                 })();
             ";
 
-            var response = await Browser.EvaluateScriptAsync(script);
-            if (response.Success)
-            {
-                return true;
-            }
-            else
-            {
-                Debug.WriteLine("Script execution failed: " + response.Message);
-                return false;
-            }
+            browser.ExecuteScriptAsync(script);
         }
         private void InjectClickListener()
         {
@@ -517,28 +523,28 @@ namespace Crowl_Alpha.ViewModel
                 }, true);
             ";
 
-            Browser.ExecuteScriptAsync(script);
+            browser.ExecuteScriptAsync(script);
         }
         private void Browser_JavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
             // The message is the data-uid of the clicked element
             var dataUid = e.Message as string;
             Debug.WriteLine("DataUID: " + dataUid);
-            //// Find the corresponding HtmlNodeInfo
-            //var htmlNodeInfo = FindHtmlNodeInfoByUid(RootHtmlNodeInfo, dataUid);
+            // Find the corresponding HtmlNodeInfo
+            var htmlNodeInfo = FindHtmlNodeInfoByUid(RootNode, dataUid);
 
-            //// Update the UI on the main thread
-            //Dispatcher.Invoke(() => {
-            //    if (htmlNodeInfo != null)
-            //    {
-            //        // Select the node in the TreeView or perform other actions
-            //        SelectTreeViewItem(htmlNodeInfo);
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show($"No HtmlNodeInfo found for data-uid: {dataUid}");
-            //    }
-            //});
+            // Update the UI on the main thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (htmlNodeInfo != null)
+                {
+                    SelectedNode = htmlNodeInfo;
+                }
+                else
+                {
+                    MessageBox.Show($"No HtmlNodeInfo found for data-uid: {dataUid}");
+                }
+            });
         }
         private HtmlNodeInfo FindHtmlNodeInfoByUid(HtmlNodeInfo node, string dataUid)
         {
@@ -554,7 +560,27 @@ namespace Crowl_Alpha.ViewModel
 
             return null;
         }
+        public IsChildOfPredicate HierarchyPredicate => IsChildOf;
+        public bool IsChildOf(object nodeA, object nodeB)
+        {
+            if (nodeA == null || nodeB == null)
+                return false;
 
+            if (nodeA == nodeB)
+                return true; // A node is considered a child of itself
+
+            var parentNode = nodeB as HtmlNodeInfo;
+            if (parentNode != null && parentNode.Children != null)
+            {
+                foreach (var child in parentNode.Children)
+                {
+                    // Recursive call to check the entire subtree
+                    if (IsChildOf(nodeA, child))
+                        return true;
+                }
+            }
+            return false;
+        }
         private void AnalyzeCleanup()
         {
             AnalyzedUrl = null;
