@@ -646,15 +646,23 @@ namespace Crowl_Alpha.ViewModel
             get => _selectedTool;
             set
             {
-                if (value != _selectedTool)
+                Debug.WriteLine("Value Received: " + value);
+                if (string.IsNullOrEmpty(value))
                 {
-                    // Set the selected tool
                     _selectedTool = value;
+                    // Reset cursor when no tool is selected
+                    Mouse.OverrideCursor = null;
 
-
-                    if (value != null)
+                    //Cleanup
+                    IsClickListenerEnabled = false;
+                }
+                else
+                {
+                    if (value != _selectedTool)
                     {
-                        Debug.WriteLine("Selected Tool: " + value);
+                        // Set the selected tool
+                        _selectedTool = value;
+
                         if (value == "ClickListener")
                         {
                             IsClickListenerEnabled = true;
@@ -664,18 +672,15 @@ namespace Crowl_Alpha.ViewModel
                         }
                         else
                         {
-                            isClickListenerEnabled = false;
+                            // Reset cursor when no tool is selected
+                            Mouse.OverrideCursor = null;
+                            IsClickListenerEnabled = false;
                         }
                     }
-                    else
-                    {
-                        // Reset cursor when no tool is selected
-                        Mouse.OverrideCursor = null;
-                        IsClickListenerEnabled = false;
-                    }
-
-                    OnPropertyChanged(nameof(SelectedTool));
                 }
+
+
+                OnPropertyChanged(nameof(SelectedTool));
             }
         }
 
@@ -751,7 +756,6 @@ namespace Crowl_Alpha.ViewModel
 
             browser.ExecuteScriptAsync(script);
         }
-
         public void RemoveClickListener()
         {
             var script = @"
@@ -760,7 +764,6 @@ namespace Crowl_Alpha.ViewModel
 
             browser.ExecuteScriptAsync(script);
         }
-
 
         #endregion
 
