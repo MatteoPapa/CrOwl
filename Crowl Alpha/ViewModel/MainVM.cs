@@ -9,9 +9,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Resources;
 using static Crowl_Alpha.View.Behaviors.TreeViewSelectedItemBehavior;
 
 namespace Crowl_Alpha.ViewModel
@@ -32,6 +34,7 @@ namespace Crowl_Alpha.ViewModel
         //Relay Commands
         public ICommand ChangeTorNodeCommand { get; }
         public ICommand AnalyzeCommand { get; }
+        public ICommand StopAnalyzeCommand { get; }
         public object ResourceExtractorTor { get; private set; }
 
         #endregion
@@ -48,6 +51,7 @@ namespace Crowl_Alpha.ViewModel
 
             ChangeTorNodeCommand = new RelayCommand(ExecuteChangeTorNode, CanExecuteChangeTorNode);
             AnalyzeCommand = new RelayCommand(ExecuteAnalyzeCommand, CanExecuteAnalyzeCommand);
+            StopAnalyzeCommand = new RelayCommand(ExecuteStopAnalyzeCommand, CanExecuteStopAnalyzeCommand);
 
             //Subscription to the TorIsReadyEvent
             ResourceExtractorTorHelper.TorReady += TorIsReady;
@@ -279,8 +283,8 @@ namespace Crowl_Alpha.ViewModel
 
         #region Browser Navigation
 
+        //Props
         private bool canGoBack;
-
         public bool CanGoBack
         {
             get => canGoBack;
@@ -294,8 +298,8 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-        private bool canGoForward;
 
+        private bool canGoForward;
         public bool CanGoForward
         {
             get => canGoForward;
@@ -308,6 +312,7 @@ namespace Crowl_Alpha.ViewModel
                 }
             }
         }
+
 
         private ChromiumWebBrowser browser;
         public ChromiumWebBrowser Browser
@@ -333,6 +338,8 @@ namespace Crowl_Alpha.ViewModel
 
             }
         }
+
+        //Methods
         private void OnBrowserLoadingStateChanged(object sender, CefSharp.LoadingStateChangedEventArgs e)
         {
             // Ensure this runs on the UI thread
@@ -388,6 +395,10 @@ namespace Crowl_Alpha.ViewModel
 
         #region Analyze Section
 
+        #region Main Section
+
+        //Props
+
         private string analyzedUrl;
         public string AnalyzedUrl
         {
@@ -436,6 +447,7 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
+        //Starting Analysis
         private bool CanExecuteAnalyzeCommand()
         {
             //Check if the url was already analyzed
@@ -454,7 +466,6 @@ namespace Crowl_Alpha.ViewModel
             }
 
             InjectDataUid();
-            InjectClickListener();
 
             try
             {
@@ -511,20 +522,7 @@ namespace Crowl_Alpha.ViewModel
 
             browser.ExecuteScriptAsync(script);
         }
-        private void InjectClickListener()
-        {
-            var script = @"
-                document.addEventListener('click', function(event) {
-                    var element = event.target;
-                    var dataUid = element.getAttribute('data-uid');
-                    if (dataUid) {
-                        CefSharp.PostMessage(dataUid);
-                    }
-                }, true);
-            ";
 
-            browser.ExecuteScriptAsync(script);
-        }
         private void Browser_JavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
             // The message is the data-uid of the clicked element
@@ -581,16 +579,161 @@ namespace Crowl_Alpha.ViewModel
             }
             return false;
         }
+
+        //Stopping Analysis
+        private bool CanExecuteStopAnalyzeCommand()
+        {
+            return true;
+        }
+        private void ExecuteStopAnalyzeCommand()
+        {
+            AnalyzeCleanup();
+        }
         private void AnalyzeCleanup()
         {
             AnalyzedUrl = null;
             RootNode = null;
             HtmlNodes = null;
 
+            //Toolbar
+            SelectedTool = null;
+            IsClickListenerEnabled = false;
+
             //CanExecuteChanged of AnalyzeCommand
             (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
 
         }
+
+        #endregion
+
+        #region Toolbar Section
+
+        //Props
+        private string _selectedTool;
+        public string SelectedTool
+        {
+            get => _selectedTool;
+            set
+            {
+                if (value != _selectedTool)
+                {
+                    // Set the selected tool
+                    _selectedTool = value;
+
+
+                    if (value != null)
+                    {
+                        Debug.WriteLine("Selected Tool: " + value);
+                        if (value == "ClickListener")
+                        {
+                            IsClickListenerEnabled = true;
+
+                            // Set custom cursor based on the selected tool
+                            SetCustomCursor();
+                        }
+                        else
+                        {
+                            isClickListenerEnabled = false;
+                        }
+                    }
+                    else
+                    {
+                        // Reset cursor when no tool is selected
+                        Mouse.OverrideCursor = null;
+                        IsClickListenerEnabled = false;
+                    }
+
+                    OnPropertyChanged(nameof(SelectedTool));
+                }
+            }
+        }
+
+        //Cursor Methods
+        private void SetCustomCursor()
+        {
+            try
+            {
+                // Use the pack URI to access the embedded resource
+                Uri resourceUri = new Uri("pack://application:,,,/View/Images/crosshair.cur");
+
+                // Get the stream for the resource
+                StreamResourceInfo resourceStream = Application.GetResourceStream(resourceUri);
+
+                if (resourceStream != null)
+                {
+                    using (Stream cursorStream = resourceStream.Stream)
+                    {
+                        Cursor customCursor = new Cursor(cursorStream);
+                        Mouse.OverrideCursor = customCursor;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Resource stream is null, resource not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error setting cursor: " + ex.Message);
+            }
+        }
+
+        //Click Listener Methods
+
+        private bool isClickListenerEnabled;
+        public bool IsClickListenerEnabled
+        {
+            get => isClickListenerEnabled;
+            set
+            {
+                if (isClickListenerEnabled != value)
+                {
+                    isClickListenerEnabled = value;
+                    OnPropertyChanged(nameof(IsClickListenerEnabled));
+
+                    // Enable or disable the listener depending on the new value
+                    if (isClickListenerEnabled)
+                    {
+                        Debug.WriteLine("Here?");
+                        InjectClickListener();
+                    }
+                    else
+                    {
+                        RemoveClickListener();
+                    }
+                }
+            }
+        }
+        private void InjectClickListener()
+        {
+            var script = @"
+                document.addEventListener('click', function(event) {
+                    var element = event.target;
+                    var dataUid = element.getAttribute('data-uid');
+                    if (dataUid) {
+                        CefSharp.PostMessage(dataUid);
+                    }
+                }, true);
+            ";
+
+            browser.ExecuteScriptAsync(script);
+        }
+        public void RemoveClickListener()
+        {
+            var script = @"
+            document.removeEventListener('click', function(event) {
+                var element = event.target;
+                var dataUid = element.getAttribute('data-uid');
+                if (dataUid) {
+                    CefSharp.PostMessage(dataUid);
+                }
+            }, true);
+        ";
+
+            browser.ExecuteScriptAsync(script);
+        }
+
+        #endregion
 
         #endregion
 

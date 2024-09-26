@@ -78,6 +78,8 @@
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToColorMultiConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\BoolToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\ValueConverters\IsNotNullOrEmptyConverter.cs" />
+    <Compile Include="ViewModel\ValueConverters\ToolSelectionConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\WindowStateToIconConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\ReloadIconConverter.cs" />
     <Compile Include="View\Behaviors\TreeViewSelectedItemBehavior.cs" />
@@ -125,7 +127,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="View\Images\crosshair.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="View\Images\crowlLogo.png" />
   </ItemGroup>
@@ -157,6 +161,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\handle.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\crosshair.cur" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
