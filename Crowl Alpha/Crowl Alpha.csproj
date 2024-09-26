@@ -71,6 +71,7 @@
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="ViewModel\Commands\TorSwitchCommand.cs" />
     <Compile Include="ViewModel\Helpers\HtmlAnalyzerHelper.cs" />
+    <Compile Include="ViewModel\Helpers\HtmlHelper.cs" />
     <Compile Include="ViewModel\Helpers\ProcessHelper.cs" />
     <Compile Include="ViewModel\Helpers\ResourceExtractorTorHelper.cs" />
     <Compile Include="ViewModel\Helpers\RestartManagerHelper.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="ViewModel\ValueConverters\ToolSelectionConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\WindowStateToIconConverter.cs" />
     <Compile Include="ViewModel\ValueConverters\ReloadIconConverter.cs" />
+    <Compile Include="View\Behaviors\TextEditorBehavior.cs" />
     <Compile Include="View\Behaviors\TreeViewSelectedItemBehavior.cs" />
     <Compile Include="View\Controls\TitleBarControl.xaml.cs">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
@@ -143,6 +145,9 @@
     <EmbeddedResource Include="Resources\tor.exe" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AvalonEdit">
+      <Version>6.3.0.90</Version>
+    </PackageReference>
     <PackageReference Include="CefSharp.Wpf">
       <Version>128.4.90</Version>
     </PackageReference>

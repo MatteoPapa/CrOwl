@@ -447,6 +447,18 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
+        private string htmlSourceCode;
+        public string HtmlSourceCode
+        {
+            get { return htmlSourceCode; }
+            set
+            {
+                htmlSourceCode = value;
+                OnPropertyChanged("HtmlSourceCode");
+            }
+        }
+
+
         //Starting Analysis
         private bool CanExecuteAnalyzeCommand()
         {
@@ -466,12 +478,12 @@ namespace Crowl_Alpha.ViewModel
             }
 
             InjectDataUid();
+            await Task.Delay(200);
 
             try
             {
                 // Retrieve the HTML source asynchronously
                 string html = await browser.GetSourceAsync();
-
                 // Perform analysis on the HTML
                 StartHtmlFragmentation(html);
             }
@@ -485,12 +497,16 @@ namespace Crowl_Alpha.ViewModel
         {
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(html);
+
             HtmlNodeInfo rootNodeInfo = HtmlAnalyzerHelper.AnalyzeHtml(doc);
 
             //Setting Props after Analysis
+
             HtmlNodes = new ObservableCollection<HtmlNodeInfo> { rootNodeInfo };
             RootNode = rootNodeInfo;
             AnalyzedUrl = SearchedUrl;
+
+            HtmlSourceCode = HtmlHelper.FormatHtml(html);
 
             //CanExecuteChanged of AnalyzeCommand
             (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -507,7 +523,7 @@ namespace Crowl_Alpha.ViewModel
                     function assignUids(element) {
                         if (element.nodeType === Node.ELEMENT_NODE) {
                             if (!element.hasAttribute('data-uid')) {
-                                element.setAttribute('data-uid', 'uid-' + uidCounter++);
+                                element.setAttribute('data-uid', 'crowl-' + uidCounter++);
                             }
                             var children = element.children;
                             for (var i = 0; i < children.length; i++) {
@@ -522,7 +538,6 @@ namespace Crowl_Alpha.ViewModel
 
             browser.ExecuteScriptAsync(script);
         }
-
         private void Browser_JavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
             // The message is the data-uid of the clicked element
@@ -594,6 +609,7 @@ namespace Crowl_Alpha.ViewModel
             AnalyzedUrl = null;
             RootNode = null;
             HtmlNodes = null;
+            HtmlSourceCode = null;
 
             //Toolbar
             SelectedTool = null;
@@ -694,7 +710,6 @@ namespace Crowl_Alpha.ViewModel
                     // Enable or disable the listener depending on the new value
                     if (isClickListenerEnabled)
                     {
-                        Debug.WriteLine("Here?");
                         InjectClickListener();
                     }
                     else

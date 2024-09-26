@@ -12,6 +12,7 @@
         xmlns:model="clr-namespace:Crowl_Alpha.Model"
         xmlns:behaviors="clr-namespace:Crowl_Alpha.View.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
         FontFamily="{materialDesign:MaterialDesignFont}"
@@ -381,53 +382,96 @@
 
                     <Grid Grid.Row="0">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+
+                        <!-- #region Analyze Button -->
                         <StackPanel Margin="10"
                                     Grid.Row="0">
                             <Button Content="Analyze"
                                     Width="200"
-                                    Command="{Binding AnalyzeCommand}" />
-
+                                    Command="{Binding AnalyzeCommand}"
+                                    Visibility="{Binding AnalyzedUrl,Converter={StaticResource IsNotNullOrEmptyConverter}, ConverterParameter=Invert}" />
                         </StackPanel>
-                        <Grid Grid.Row="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
+                        <!--#endregion-->
 
-                            <TreeView ItemsSource="{Binding HtmlNodes}"
-                                      Grid.Row="1"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <!-- Disable Horizontal Scroll -->
-                                <i:Interaction.Behaviors>
-                                    <behaviors:TreeViewSelectedItemBehavior ExpandSelected="True"
-                                                                            HierarchyPredicate="{Binding HierarchyPredicate}"
-                                                                            SelectedItem="{Binding SelectedNode}" />
-                                </i:Interaction.Behaviors>
+                        <!-- #region TabControl  -->
+                        <TabControl Grid.Row="0"
+                                    Visibility="{Binding AnalyzedUrl,Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                            
+                            <!-- #region Tab for TreeView -->
+                            <TabItem Header="Treeview">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
 
-                                <TreeView.Resources>
-                                    <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
-                                    <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
-                                                              ItemsSource="{Binding Children}">
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
-                                            <TextBlock Text=": " />
-                                            <!-- Ensure text wraps if it is too long -->
-                                            <TextBlock Text="{Binding InnerText}"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="CharacterEllipsis" />
-                                        </StackPanel>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.Resources>
-                            </TreeView>
-                        </Grid>
+                                    <!-- TreeView inside the TabItem -->
+                                    <TreeView ItemsSource="{Binding HtmlNodes}"
+                                              Grid.Row="1"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:TreeViewSelectedItemBehavior ExpandSelected="True"
+                                                                                    HierarchyPredicate="{Binding HierarchyPredicate}"
+                                                                                    SelectedItem="{Binding SelectedNode}" />
+                                        </i:Interaction.Behaviors>
+
+                                        <TreeView.Resources>
+                                            <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
+                                            <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
+                                                                      ItemsSource="{Binding Children}">
+                                                <Grid VerticalAlignment="Center">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                                               Grid.Column="0" />
+                                                    <TextBlock Text=": "
+                                                               Grid.Column="1" />
+                                                    <TextBlock Text="{Binding InnerText}"
+                                                               TextWrapping="Wrap"
+                                                               Grid.Column="2"
+                                                               HorizontalAlignment="Left" />
+                                                </Grid>
+                                            </HierarchicalDataTemplate>
+                                        </TreeView.Resources>
+                                    </TreeView>
+                                </Grid>
+                            </TabItem>
+                            <!--#endregion-->
+                            
+                            <!-- #region Tab For SourceCode -->
+                            <TabItem Header="Source Code">
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <avalonEdit:TextEditor x:Name="editor"
+                                                           FontSize="14"
+                                                           ShowLineNumbers="True"
+                                                           IsReadOnly="True"
+                                                           VerticalScrollBarVisibility="Auto"
+                                                           HorizontalScrollBarVisibility="Auto"
+                                                           Background="#1E1E1E"
+                                                           Foreground="#D4D4D4"
+                                                           BorderThickness="0"
+                                                           behaviors:TextEditorBehavior.BoundText="{Binding HtmlSourceCode, Mode=TwoWay}" />
 
 
+                                </ScrollViewer>
+                            </TabItem>
+                            <!--#endregion-->
+                            
+                            <!-- Eventual additional TabItems as needed -->
+                            <!-- ... -->
+                            
+                        </TabControl>
+                        <!--#endregion-->
+                        
                     </Grid>
 
                     <!--#region GridSplitter-->
