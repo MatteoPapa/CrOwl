@@ -738,16 +738,16 @@ namespace Crowl_Alpha.ViewModel
         private void InjectClickListener()
         {
             var script = @"
-                    var clickListener = function(event) {
-                        var element = event.target;
-                        var dataUid = element.getAttribute('data-uid');
-                        if (dataUid) {
-                            CefSharp.PostMessage(dataUid);
-                        }
-                    };
+        var clickListener = function(event) {
+            var element = event.target;
+            var dataUid = element.getAttribute('data-uid');
+            if (dataUid) {
+                CefSharp.PostMessage(dataUid);
+            }
+        };
 
-                    document.addEventListener('click', clickListener, true);
-                ";
+        document.addEventListener('click', clickListener, true);
+    ";
 
             browser.ExecuteScriptAsync(script);
         }
@@ -755,8 +755,8 @@ namespace Crowl_Alpha.ViewModel
         public void RemoveClickListener()
         {
             var script = @"
-                    document.removeEventListener('click', clickListener, true);
-                ";
+        document.removeEventListener('click', clickListener, true);
+    ";
 
             browser.ExecuteScriptAsync(script);
         }
