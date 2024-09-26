@@ -12,7 +12,6 @@
         xmlns:model="clr-namespace:Crowl_Alpha.Model"
         xmlns:behaviors="clr-namespace:Crowl_Alpha.View.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
         FontFamily="{materialDesign:MaterialDesignFont}"
@@ -53,10 +52,7 @@
             Background="{DynamicResource MaterialDesign.Brush.Background}">
         <DockPanel>
 
-            <!--#region Custom Title Bar -->
             <uc:TitleBarControl DockPanel.Dock="Top" />
-            <!--#endregion-->
-
 
             <!-- Main Content Area -->
             <Grid DataContext="{Binding Source={StaticResource vm}}">
@@ -80,269 +76,9 @@
                     </Grid.RowDefinitions>
                     <!--#endregion-->
 
-                    <!--#region Navigate Toolbar -->
-                    <Border BorderBrush="#33FFFFFF"
-                            BorderThickness="0 0 0 1"
-                            Grid.Row="0"
-                            Visibility="{Binding AnalyzedUrl, Converter={StaticResource IsNotNullOrEmptyConverter},ConverterParameter=Invert}">
-                        <Grid Height="70">
+                    <uc:NavigationToolbarControl DataContext="{Binding}" />
 
-                            <!--#region Toolbar Grid Def -->
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.3*" />
-                                <ColumnDefinition Width="0.3*" />
-                                <ColumnDefinition Width="2.5*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <!--#endregion-->
-
-                            <!--#region Back/Forward Buttons -->
-                            <StackPanel Grid.Column="0"
-                                        Orientation="Horizontal"
-                                        HorizontalAlignment="Right">
-                                <Button Content="{materialDesign:PackIcon Kind=ArrowLeftBold, Size=30}"
-                                        Command="{Binding BrowserGoBackCommand, UpdateSourceTrigger=PropertyChanged}"
-                                        IsEnabled="{Binding CanGoBack}"
-                                        Foreground="White"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Padding="0"
-                                        Style="{DynamicResource MaterialDesignFlatButton}" />
-                                <Button Content="{materialDesign:PackIcon Kind=ArrowRightBold, Size=30}"
-                                        Command="{Binding BrowserGoForwardCommand, UpdateSourceTrigger=PropertyChanged}"
-                                        IsEnabled="{Binding CanGoForward}"
-                                        Margin="10 0 0 0"
-                                        Foreground="White"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Padding="0"
-                                        Style="{DynamicResource MaterialDesignFlatButton}" />
-                            </StackPanel>
-                            <!--#endregion-->
-
-                            <!--#region Reload Button -->
-                            <Button Grid.Column="1"
-                                    Command="{Binding GoToUrlCommand, UpdateSourceTrigger=PropertyChanged}"
-                                    CommandParameter="{Binding SearchIsReadyVariable}"
-                                    Width="50"
-                                    HorizontalAlignment="Center"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Margin="10">
-                                <Button.Content>
-                                    <MultiBinding Converter="{StaticResource ReloadIconConverter}">
-                                        <Binding Path="Url" />
-                                        <Binding Path="SearchedUrl" />
-                                    </MultiBinding>
-                                </Button.Content>
-                            </Button>
-                            <!--#endregion-->
-
-                            <!--#region Url TextBox -->
-                            <Grid Grid.Column="2"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Stretch"
-                                  Margin="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Icon -->
-                                <materialDesign:PackIcon Kind="Web"
-                                                         Width="30"
-                                                         Height="30"
-                                                         Foreground="White"
-                                                         VerticalAlignment="Center"
-                                                         Margin="5" />
-
-                                <!-- TextBox -->
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         VerticalAlignment="Center"
-                                         HorizontalAlignment="Stretch"
-                                         Foreground="White"
-                                         FontSize="16"
-                                         Padding="5,0">
-
-                                    <!-- InputBindings for Enter Key -->
-                                    <TextBox.InputBindings>
-                                        <KeyBinding Key="Enter"
-                                                    Command="{Binding GoToUrlCommand}"
-                                                    CommandParameter="{Binding SearchIsReadyVariable}" />
-                                    </TextBox.InputBindings>
-
-                                </TextBox>
-                            </Grid>
-                            <!--#endregion-->
-
-                            <!--#region Incognito ToggleSwitch -->
-                            <StackPanel Grid.Column="3"
-                                        Orientation="Horizontal"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center"
-                                        Margin="20 0">
-                                <ToggleButton Margin="15 0"
-                                              IsChecked="{Binding TorEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              Command="{Binding TorSwitchCommand}" />
-
-                                <!-- #region Incognito Button -->
-                                <Button Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        Width="50"
-                                        Height="50"
-                                        Cursor="Hand"
-                                        IsEnabled="{Binding TorEnabled}"
-                                        Style="{DynamicResource MaterialDesignFlatButton}"
-                                        Click="OpenContextMenu_Click"
-                                        Padding="0">
-
-                                    <!-- PackIcon inside the Button for the visual appearance -->
-                                    <materialDesign:PackIcon Kind="Incognito"
-                                                             Width="35"
-                                                             Height="35">
-                                        <materialDesign:PackIcon.Foreground>
-                                            <MultiBinding Converter="{StaticResource BoolToColorMultiConverter}">
-                                                <Binding Path="SearchIsReadyVariable" />
-                                                <Binding Path="TorEnabled" />
-                                                <!-- Add more bindings as needed -->
-                                            </MultiBinding>
-                                        </materialDesign:PackIcon.Foreground>
-                                    </materialDesign:PackIcon>
-
-                                    <!-- ContextMenu for the button -->
-                                    <Button.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="New IP Address"
-                                                      Cursor="Hand"
-                                                      ToolTipService.ShowOnDisabled="True"
-                                                      Command="{Binding ChangeTorNodeCommand}"
-                                                      VerticalContentAlignment="Bottom"
-                                                      Padding="10 0">
-                                                <!-- Icon for the MenuItem -->
-                                                <MenuItem.Icon>
-                                                    <materialDesign:PackIcon Kind="Ip"
-                                                                             Width="16"
-                                                                             Height="16" />
-                                                </MenuItem.Icon>
-                                                <!-- Static Tooltip -->
-                                                <MenuItem.ToolTip>
-                                                    <ToolTip Visibility="{Binding IsTimerFinished, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
-                                                        You can request a new IP address once every 10 seconds.
-                                                    </ToolTip>
-                                                </MenuItem.ToolTip>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </Button.ContextMenu>
-                                </Button>
-
-                                <ProgressBar IsIndeterminate="True"
-                                             Width="50"
-                                             Height="50"
-                                             Visibility="{Binding SearchIsReadyVariable, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                                             Style="{DynamicResource MaterialDesignCircularProgressBar}" />
-                                <!--#endregion-->
-
-                            </StackPanel>
-                            <!--#endregion-->
-
-                        </Grid>
-                    </Border>
-                    <!--#endregion-->
-
-                    <!--#region Analyze Toolbar -->
-                    <Border BorderBrush="#33FFFFFF"
-                            BorderThickness="0 0 0 1"
-                            Grid.Row="0"
-                            Visibility="{Binding AnalyzedUrl, Converter={StaticResource IsNotNullOrEmptyConverter}}">
-                        <Grid Height="70">
-
-                            <!--#region Analyze Toolbar Grid Def -->
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <!--#endregion-->
-
-                            <StackPanel Orientation="Horizontal"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Margin="20"
-                                        Grid.Column="0">
-
-                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
-                                        Command="{Binding StopAnalyzeCommand}"
-                                        Cursor="Hand"
-                                        Padding="0 0">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <materialDesign:PackIcon Kind="StepBackward"
-                                                                 Width="35"
-                                                                 Height="35"
-                                                                 VerticalAlignment="Center" />
-                                        <TextBlock Text="Navigate"
-                                                   VerticalAlignment="Center"
-                                                   Margin="5 0" />
-                                    </StackPanel>
-                                </Button>
-
-
-                                <!--#endregion-->
-
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Margin="10 0"
-                                        Grid.Column="2">
-
-                                <!--#region ClickListener Tool-->
-                                <ToggleButton IsChecked="{Binding SelectedTool, ConverterParameter=ClickListener, Converter={StaticResource ToolSelectionConverter}}"
-                                              Style="{DynamicResource MaterialDesignFlatPrimaryToggleButton}"
-                                              Foreground="White"
-                                              Cursor="Hand"
-                                              Margin="10 0">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <materialDesign:PackIcon Kind="Crosshairs" />
-                                    </StackPanel>
-                                </ToggleButton>
-                                <!--#endregion-->
-
-                                <!--#region Selection Tool -->
-                                <ToggleButton IsChecked="{Binding SelectedTool, ConverterParameter=Tool2, Converter={StaticResource ToolSelectionConverter}}"
-                                              Style="{DynamicResource MaterialDesignFlatPrimaryToggleButton}"
-                                              Foreground="White"
-                                              Cursor="Hand"
-                                              Margin="10 0">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <materialDesign:PackIcon Kind="Selection" />
-                                    </StackPanel>
-                                </ToggleButton>
-                                <!--#endregion-->
-
-                                <!--#region Info Tool -->
-                                <ToggleButton IsChecked="{Binding SelectedTool, ConverterParameter=Tool3, Converter={StaticResource ToolSelectionConverter}}"
-                                              Style="{DynamicResource MaterialDesignFlatPrimaryToggleButton}"
-                                              Foreground="White"
-                                              Cursor="Hand"
-                                              Margin="10 0">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <materialDesign:PackIcon Kind="Information" />
-                                    </StackPanel>
-                                </ToggleButton>
-                                <!--#endregion-->
-
-                            </StackPanel>
-
-                        </Grid>
-                    </Border>
-                    <!--#endregion-->
+                    <uc:AnalyzeToolbarControl DataContext="{Binding}" />
 
                     <!--#region Chromium Web Browser -->
                     <Grid Grid.Row="1"
@@ -351,7 +87,6 @@
                         <cefSharp:ChromiumWebBrowser x:Name="browser"
                                                      Address="{Binding SearchedUrl}" />
                     </Grid>
-
 
                     <!--#endregion-->
 
@@ -398,80 +133,22 @@
                         <!-- #region TabControl  -->
                         <TabControl Grid.Row="0"
                                     Visibility="{Binding AnalyzedUrl,Converter={StaticResource IsNotNullOrEmptyConverter}}">
-                            
-                            <!-- #region Tab for TreeView -->
+
                             <TabItem Header="Treeview">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-
-                                    <!-- TreeView inside the TabItem -->
-                                    <TreeView ItemsSource="{Binding HtmlNodes}"
-                                              Grid.Row="1"
-                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:TreeViewSelectedItemBehavior ExpandSelected="True"
-                                                                                    HierarchyPredicate="{Binding HierarchyPredicate}"
-                                                                                    SelectedItem="{Binding SelectedNode}" />
-                                        </i:Interaction.Behaviors>
-
-                                        <TreeView.Resources>
-                                            <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
-                                            <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
-                                                                      ItemsSource="{Binding Children}">
-                                                <Grid VerticalAlignment="Center">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Text="{Binding Name}"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                                                               Grid.Column="0" />
-                                                    <TextBlock Text=": "
-                                                               Grid.Column="1" />
-                                                    <TextBlock Text="{Binding InnerText}"
-                                                               TextWrapping="Wrap"
-                                                               Grid.Column="2"
-                                                               HorizontalAlignment="Left" />
-                                                </Grid>
-                                            </HierarchicalDataTemplate>
-                                        </TreeView.Resources>
-                                    </TreeView>
-                                </Grid>
+                                <uc:AnalysisTreeViewControl DataContext="{Binding}" />
                             </TabItem>
-                            <!--#endregion-->
                             
-                            <!-- #region Tab For SourceCode -->
-                            <TabItem Header="Source Code">
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <avalonEdit:TextEditor x:Name="editor"
-                                                           FontSize="14"
-                                                           ShowLineNumbers="True"
-                                                           IsReadOnly="True"
-                                                           VerticalScrollBarVisibility="Auto"
-                                                           HorizontalScrollBarVisibility="Auto"
-                                                           Background="#1E1E1E"
-                                                           Foreground="#D4D4D4"
-                                                           BorderThickness="0"
-                                                           behaviors:TextEditorBehavior.BoundText="{Binding HtmlSourceCode, Mode=TwoWay}" />
-
-
-                                </ScrollViewer>
+                            <TabItem Header="Selected Item">
+                                <uc:SelectedItemDetailsControl DataContext="{Binding}" />
                             </TabItem>
-                            <!--#endregion-->
-                            
+
+
                             <!-- Eventual additional TabItems as needed -->
                             <!-- ... -->
-                            
+
                         </TabControl>
                         <!--#endregion-->
-                        
+
                     </Grid>
 
                     <!--#region GridSplitter-->

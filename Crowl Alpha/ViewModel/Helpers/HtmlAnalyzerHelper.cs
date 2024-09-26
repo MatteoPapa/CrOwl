@@ -17,7 +17,7 @@ namespace Crowl_Alpha.Model
             if (doc.DocumentNode == null)
                 return null;
 
-            return AnalyzeNode(doc.DocumentNode, null);
+            return AnalyzeNode(doc.DocumentNode.ChildNodes[1], null);
         }
 
         // Analyzes individual HTML nodes and builds the tree structure

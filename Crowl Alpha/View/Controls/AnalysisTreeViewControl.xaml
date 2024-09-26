@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="Crowl_Alpha.View.Controls.AnalysisTreeViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Crowl_Alpha.View.Controls"
+             xmlns:behaviors="clr-namespace:Crowl_Alpha.View.Behaviors"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:model="clr-namespace:Crowl_Alpha.Model"
+             xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
+             xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <vm:MainVM x:Key="vm" />
+        <converters:BoolToColorMultiConverter x:Key="BoolToColorMultiConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:ReloadIconConverter x:Key="ReloadIconConverter" />
+        <converters:ToolSelectionConverter x:Key="ToolSelectionConverter" />
+        <converters:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- TreeView inside the TabItem -->
+        <TreeView ItemsSource="{Binding HtmlNodes}"
+                  Grid.Row="1"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <i:Interaction.Behaviors>
+                <behaviors:TreeViewSelectedItemBehavior ExpandSelected="True"
+                                                        HierarchyPredicate="{Binding HierarchyPredicate}"
+                                                        SelectedItem="{Binding SelectedNode}" />
+            </i:Interaction.Behaviors>
+
+            <TreeView.Resources>
+                <!-- Define a HierarchicalDataTemplate for HtmlNodeInfo -->
+                <HierarchicalDataTemplate DataType="{x:Type model:HtmlNodeInfo}"
+                                          ItemsSource="{Binding Children}">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding Name}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                   Grid.Column="0" />
+                        <TextBlock Text=": "
+                                   Grid.Column="1" />
+                        <TextBlock Text="{Binding InnerText}"
+                                   TextWrapping="Wrap"
+                                   Grid.Column="2"
+                                   HorizontalAlignment="Left" />
+                    </Grid>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+    </Grid>
+</UserControl>

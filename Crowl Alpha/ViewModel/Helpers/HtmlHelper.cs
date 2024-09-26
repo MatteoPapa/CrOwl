@@ -1,62 +1,72 @@
-﻿using System;
+﻿using Crowl_Alpha.Model;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Crowl_Alpha.ViewModel.Helpers
 {
     public class HtmlHelper
     {
-        public static string FormatHtml(string rawHtml)
+        public static string GenerateHtml(HtmlNodeInfo node)
         {
-            var formattedHtml = new StringBuilder();
-            int indentLevel = 0;
-            var inlineTags = new HashSet<string> { "a", "span", "strong", "em", "b", "i", "option", "li" };
-            var selfClosingTags = new HashSet<string> { "br", "img", "hr", "input", "meta", "link" };
+            StringBuilder htmlBuilder = new StringBuilder();
 
-            foreach (var line in rawHtml.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+            // Recursively build the HTML string
+            BuildHtml(node, htmlBuilder);
+
+            return htmlBuilder.ToString();
+        }
+
+        private static void BuildHtml(HtmlNodeInfo node, StringBuilder htmlBuilder)
+        {
+            // Process only if it's an element node
+            if (node.NodeType == "Element")
             {
-                var trimmedLine = line.Trim();
+                // Start tag with attributes
+                htmlBuilder.Append("<").Append(node.Name);
 
-                if (string.IsNullOrEmpty(trimmedLine))
+                if (node.Attributes != null && node.Attributes.Count > 0)
                 {
-                    continue;
+                    foreach (var attribute in node.Attributes)
+                    {
+                        htmlBuilder.Append($" {attribute.Name}=\"{attribute.Value}\"");
+                    }
                 }
 
-                // Determine if it's a closing tag
-                if (trimmedLine.StartsWith("</"))
+                htmlBuilder.Append(">");
+
+                // If there is any inner text, append it
+                if (!string.IsNullOrEmpty(node.InnerText))
                 {
-                    // Ensure indentLevel does not go below zero
-                    indentLevel = Math.Max(0, indentLevel - 1);
-                    formattedHtml.AppendLine(new string(' ', indentLevel * 4) + trimmedLine);
-                    continue;
+                    htmlBuilder.Append(node.InnerText);
                 }
 
-                // Determine if it's a self-closing tag
-                bool isSelfClosing = trimmedLine.EndsWith("/>") || selfClosingTags.Contains(GetTagName(trimmedLine));
-
-                // Write the line with the current indentation
-                formattedHtml.AppendLine(new string(' ', indentLevel * 4) + trimmedLine);
-
-                // Increase indentation only if it's an opening tag that isn't self-closing or inline
-                if (trimmedLine.StartsWith("<") && !trimmedLine.StartsWith("</") && !isSelfClosing && !inlineTags.Contains(GetTagName(trimmedLine)))
+                // Process children nodes recursively
+                if (node.Children != null && node.Children.Count > 0)
                 {
-                    indentLevel++;
+                    foreach (var child in node.Children)
+                    {
+                        BuildHtml(child, htmlBuilder);
+                    }
                 }
+
+                // End tag
+                htmlBuilder.Append($"</").Append(node.Name).Append(">");
             }
-
-            return formattedHtml.ToString();
+            else if (node.NodeType == "Text")
+            {
+                Debug.WriteLine("Here");
+                // If it's a text node, just append the inner text
+                htmlBuilder.Append(node.InnerText);
+            }
+            else if (node.NodeType == "Comment")
+            {
+                // For comments, wrap it in a comment tag
+                htmlBuilder.Append("<!--").Append(node.InnerText).Append("-->");
+            }
         }
 
-        // Helper method to extract tag name from an HTML line
-        private static string GetTagName(string line)
-        {
-            // Remove the angle brackets and split the line by space to extract the tag name
-            var tag = line.Trim('<', '>', '/').Split(' ')[0].ToLower();
-            return tag;
-        }
-    
     }
 }
 

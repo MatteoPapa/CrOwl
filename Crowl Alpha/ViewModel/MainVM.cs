@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Resources;
+using System.Windows.Threading;
 using static Crowl_Alpha.View.Behaviors.TreeViewSelectedItemBehavior;
 
 namespace Crowl_Alpha.ViewModel
@@ -58,7 +59,7 @@ namespace Crowl_Alpha.ViewModel
 
             //Initializing variables
             SearchIsReadyVariable = true;
-            Url = "https://check.torproject.org/";
+            Url = "https://check.torproject.org";
 
             //Two years later... I found this fix, DON'T REMOVE THAT
             SelectedNode = new HtmlNodeInfo();
@@ -506,7 +507,9 @@ namespace Crowl_Alpha.ViewModel
             RootNode = rootNodeInfo;
             AnalyzedUrl = SearchedUrl;
 
-            HtmlSourceCode = HtmlHelper.FormatHtml(html);
+            string generatedHtml = HtmlHelper.GenerateHtml(RootNode);
+            Debug.WriteLine(generatedHtml);
+            HtmlSourceCode = generatedHtml;
 
             //CanExecuteChanged of AnalyzeCommand
             (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();

@@ -85,6 +85,18 @@
     <Compile Include="ViewModel\ValueConverters\ReloadIconConverter.cs" />
     <Compile Include="View\Behaviors\TextEditorBehavior.cs" />
     <Compile Include="View\Behaviors\TreeViewSelectedItemBehavior.cs" />
+    <Compile Include="View\Controls\AnalysisTreeViewControl.xaml.cs">
+      <DependentUpon>AnalysisTreeViewControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Controls\AnalyzeToolbarControl.xaml.cs">
+      <DependentUpon>AnalyzeToolbarControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Controls\NavigationToolbarControl.xaml.cs">
+      <DependentUpon>NavigationToolbarControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Controls\SelectedItemDetailsControl.xaml.cs">
+      <DependentUpon>SelectedItemDetailsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Controls\TitleBarControl.xaml.cs">
       <DependentUpon>TitleBarControl.xaml</DependentUpon>
     </Compile>
@@ -120,6 +132,22 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\Controls\AnalysisTreeViewControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Controls\AnalyzeToolbarControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Controls\NavigationToolbarControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Controls\SelectedItemDetailsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Controls\TitleBarControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -163,9 +191,6 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
       <Version>1.1.135</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\handle.exe" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="View\Images\crosshair.cur" />

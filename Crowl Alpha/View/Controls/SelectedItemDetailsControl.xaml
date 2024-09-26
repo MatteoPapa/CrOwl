@@ -1,0 +1,134 @@
+﻿<UserControl x:Class="Crowl_Alpha.View.Controls.SelectedItemDetailsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Crowl_Alpha.View.Controls"
+             xmlns:behaviors="clr-namespace:Crowl_Alpha.View.Behaviors"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:model="clr-namespace:Crowl_Alpha.Model"
+             xmlns:vm="clr-namespace:Crowl_Alpha.ViewModel"
+             xmlns:converters="clr-namespace:Crowl_Alpha.ViewModel.ValueConverters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <vm:MainVM x:Key="vm" />
+        <converters:BoolToColorMultiConverter x:Key="BoolToColorMultiConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:ReloadIconConverter x:Key="ReloadIconConverter" />
+        <converters:ToolSelectionConverter x:Key="ToolSelectionConverter" />
+        <converters:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter" />
+    </UserControl.Resources>
+
+    <!-- #region Tab For Selected Item -->
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <!--#region Node Type -->
+            <StackPanel Visibility="{Binding SelectedNode.NodeType, Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                <!-- Node Type -->
+                <Label Content="Node Type:"
+                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                <TextBlock Text="{Binding SelectedNode.NodeType}"
+                           Margin="10" />
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region Tag Name -->
+            <StackPanel Visibility="{Binding SelectedNode.Name, Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                <!-- Tag Name -->
+                <Label Content="Tag Name:"
+                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                <TextBlock Text="{Binding SelectedNode.Name}"
+                           Margin="10" />
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region Inner Text -->
+            <StackPanel Visibility="{Binding SelectedNode.InnerText, Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                <!-- Inner Text -->
+                <Label Content="Inner Text:"
+                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                <TextBlock Text="{Binding SelectedNode.InnerText}"
+                           Margin="10" />
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region Attributes-->
+            <StackPanel Visibility="{Binding SelectedNode.Attributes, Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                <!-- Attributes Label -->
+                <Label Content="Attributes:"
+                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+
+                <!-- Display attributes in a ListBox or ItemsControl -->
+                <ItemsControl ItemsSource="{Binding SelectedNode.Attributes}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="10">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <!-- DataTrigger to hide the "data-uid" attribute -->
+                                            <DataTrigger Binding="{Binding Name}"
+                                                         Value="data-uid">
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <!-- Display Attribute Name -->
+                                <TextBlock Text="{Binding Name}"
+                                           FontWeight="Bold"
+                                           Margin="0,0,5,0" />
+                                <!-- Display Attribute Value -->
+                                <TextBlock Text=": " />
+                                <TextBlock Text="{Binding Value}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region Children -->
+            <StackPanel Visibility="{Binding SelectedNode.Children, Converter={StaticResource IsNotNullOrEmptyConverter}}">
+                <!-- Children -->
+                <Label Content="Children:"
+                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                       FontWeight="ExtraBold" />
+                <ListBox ItemsSource="{Binding SelectedNode.Children}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    Margin="5">
+                                <StackPanel Margin="10">
+                                    <!-- Customize how each child node is displayed -->
+                                    <TextBlock Text="{Binding Name}"
+                                               FontWeight="Bold" />
+                                    <TextBlock Text="{Binding NodeType}" />
+                                    <TextBlock Text="{Binding InnerText}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+            <!--#endregion-->
+
+        </StackPanel>
+    </ScrollViewer>
+    <!--#endregion-->
+</UserControl>
