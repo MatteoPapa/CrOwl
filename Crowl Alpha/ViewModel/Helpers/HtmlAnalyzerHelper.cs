@@ -71,7 +71,7 @@ namespace Crowl_Alpha.Model
                         nodeInfo.Children.Add(childNodeInfo);
 
                         // Combine the inner text for inline elements and their text children
-                        if (InlineElements.Contains(childNode.Name.ToLower()))
+                        if (InlineElements.Contains(childNode.Name.ToLower()) && !BlockElements.Contains(node.Name.ToLower()))
                         {
                             combinedInnerText += childNodeInfo.InnerText + " ";
                         }

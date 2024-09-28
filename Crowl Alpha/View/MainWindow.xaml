@@ -72,6 +72,7 @@
                     <!-- #region Browser Grid Definition -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <!--#endregion-->
@@ -80,8 +81,29 @@
 
                     <uc:AnalyzeToolbarControl DataContext="{Binding}" />
 
+                    <!--#region Locked Navigation Alert-->
+                    <Border Visibility="{Binding AnalyzedUrl, Converter={StaticResource IsNotNullOrEmptyConverter}}" 
+                        Background="Black"
+                            Grid.Row="1"
+                            Height="40" >
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="0 3">
+                            <materialDesign:PackIcon Kind="Alert"
+                                                     Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                            <TextBlock Text="Navigation and dynamically loaded content are disabled during analysis"
+                                       Margin="7 0"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                            <materialDesign:PackIcon Kind="Alert"
+                                                     Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                        </StackPanel>
+                    </Border>
+                    <!--#endregion-->
+
                     <!--#region Chromium Web Browser -->
-                    <Grid Grid.Row="1"
+                    <Grid Grid.Row="2"
                           x:Name="BrowserGrid"
                           Background="White">
                         <cefSharp:ChromiumWebBrowser x:Name="browser"
@@ -137,7 +159,7 @@
                             <TabItem Header="Treeview">
                                 <uc:AnalysisTreeViewControl DataContext="{Binding}" />
                             </TabItem>
-                            
+
                             <TabItem Header="Selected Item">
                                 <uc:SelectedItemDetailsControl DataContext="{Binding}" />
                             </TabItem>

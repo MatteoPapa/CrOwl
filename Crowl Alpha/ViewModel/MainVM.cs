@@ -537,8 +537,6 @@ namespace Crowl_Alpha.ViewModel
 
             browser.GetBrowser().MainFrame.ExecuteJavaScriptAsync(script);
         }
-
-
         private void StartHtmlFragmentation(string html)
         {
             var doc = new HtmlAgilityPack.HtmlDocument();
@@ -552,9 +550,7 @@ namespace Crowl_Alpha.ViewModel
             RootNode = rootNodeInfo;
             AnalyzedUrl = SearchedUrl;
 
-            string generatedHtml = HtmlHelper.GenerateHtml(RootNode);
-            Debug.WriteLine(generatedHtml);
-            HtmlSourceCode = generatedHtml;
+            HtmlSourceCode = html;
 
             //CanExecuteChanged of AnalyzeCommand
             (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -684,7 +680,6 @@ namespace Crowl_Alpha.ViewModel
             get => _selectedTool;
             set
             {
-                Debug.WriteLine("Value Received: " + value);
                 if (string.IsNullOrEmpty(value))
                 {
                     _selectedTool = value;
@@ -772,7 +767,6 @@ namespace Crowl_Alpha.ViewModel
                     }
                     else
                     {
-                        Debug.WriteLine("Deactivate");
                         RemoveClickListener();
                     }
                 }

@@ -59,21 +59,33 @@
             <!--#endregion-->
 
             <!--#region Attributes-->
-            <StackPanel Visibility="{Binding SelectedNode.Attributes, Converter={StaticResource IsNotNullOrEmptyConverter}}">
-                <!-- Attributes Label -->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <!-- Trigger to hide if Attributes is null or empty -->
+                            <DataTrigger Binding="{Binding SelectedNode.Attributes.Count}"
+                                         Value="1"> 
+                                <!-- One because there's the data-uid-->
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
                 <Label Content="Attributes:"
                        Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
 
-                <!-- Display attributes in a ListBox or ItemsControl -->
                 <ItemsControl ItemsSource="{Binding SelectedNode.Attributes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal"
                                         Margin="10">
+                                <!-- DataTrigger to hide the "data-uid" attribute -->
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
                                         <Style.Triggers>
-                                            <!-- DataTrigger to hide the "data-uid" attribute -->
                                             <DataTrigger Binding="{Binding Name}"
                                                          Value="data-uid">
                                                 <Setter Property="Visibility"
@@ -83,11 +95,9 @@
                                     </Style>
                                 </StackPanel.Style>
 
-                                <!-- Display Attribute Name -->
                                 <TextBlock Text="{Binding Name}"
                                            FontWeight="Bold"
                                            Margin="0,0,5,0" />
-                                <!-- Display Attribute Value -->
                                 <TextBlock Text=": " />
                                 <TextBlock Text="{Binding Value}" />
                             </StackPanel>
@@ -95,14 +105,28 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
+
             <!--#endregion-->
 
             <!--#region Children -->
-            <StackPanel Visibility="{Binding SelectedNode.Children, Converter={StaticResource IsNotNullOrEmptyConverter}}">
-                <!-- Children -->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <!-- Trigger to hide if Children is null or empty -->
+                            <DataTrigger Binding="{Binding SelectedNode.Children.Count}"
+                                         Value="0">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
                 <Label Content="Children:"
                        Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                        FontWeight="ExtraBold" />
+
                 <ListBox ItemsSource="{Binding SelectedNode.Children}">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -115,10 +139,8 @@
                                     BorderThickness="1"
                                     Margin="5">
                                 <StackPanel Margin="10">
-                                    <!-- Customize how each child node is displayed -->
                                     <TextBlock Text="{Binding Name}"
-                                               FontWeight="Bold" />
-                                    <TextBlock Text="{Binding NodeType}" />
+                                               FontWeight="Bold" Margin="0 0 0 10"/>
                                     <TextBlock Text="{Binding InnerText}" />
                                 </StackPanel>
                             </Border>
@@ -126,6 +148,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </StackPanel>
+
             <!--#endregion-->
 
         </StackPanel>
