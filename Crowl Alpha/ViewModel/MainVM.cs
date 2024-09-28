@@ -20,10 +20,8 @@ namespace Crowl_Alpha.ViewModel
 {
     //TODO:     Generic
     /// - Analyze Toolbar Check and Fix
-    /// - Freeze the website
     /// - Highlight SelectedItem in Browser
     /// - New Browser on New Ip Address
-    /// -  
 
     //TODO:     AI Stuff
     /// - Scraping Section
@@ -453,9 +451,22 @@ namespace Crowl_Alpha.ViewModel
             {
                 if (_selectedNode != value)
                 {
+                    // Unhighlight the previously selected element, if applicable
+                    if (_selectedNode != null)
+                    {
+                        UnhighlightElementByUid(browser, _selectedNode.DataUid); // Remove highlight from old node
+                    }
+
                     _selectedNode = value;
                     OnPropertyChanged(nameof(SelectedNode));
-                    Debug.WriteLine($"SelectedNode ID: {SelectedNode.DataUid}");
+
+                    Debug.WriteLine($"SelectedNode ID: {SelectedNode?.DataUid}");
+
+                    // Highlight the newly selected element
+                    if (_selectedNode != null && !string.IsNullOrWhiteSpace(_selectedNode.DataUid))
+                    {
+                        HighlightElementByUid(browser, _selectedNode.DataUid);
+                    }
                 }
             }
         }
@@ -796,6 +807,38 @@ namespace Crowl_Alpha.ViewModel
 
             browser.ExecuteScriptAsync(script);
         }
+
+        //Highlight Methods
+
+        public void HighlightElementByUid(IWebBrowser browser, string dataUid)
+        {
+            string script = $@"
+        (function() {{
+            var element = document.querySelector('[data-uid=""{dataUid}""]');
+            if (element) {{
+                element.style.border = '2px solid red';
+                element.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+            }}
+        }})();
+    ";
+
+            browser.ExecuteScriptAsync(script);
+        }
+
+        public void UnhighlightElementByUid(IWebBrowser browser, string dataUid)
+        {
+            string script = $@"
+        (function() {{
+            var element = document.querySelector('[data-uid=""{dataUid}""]');
+            if (element) {{
+                element.style.border = ''; // Reset the border
+            }}
+        }})();
+    ";
+
+            browser.ExecuteScriptAsync(script);
+        }
+
 
         #endregion
 
