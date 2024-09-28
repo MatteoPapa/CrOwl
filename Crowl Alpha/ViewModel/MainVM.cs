@@ -471,7 +471,6 @@ namespace Crowl_Alpha.ViewModel
             }
         }
 
-
         //Starting Analysis
         private bool CanExecuteAnalyzeCommand()
         {
@@ -490,8 +489,15 @@ namespace Crowl_Alpha.ViewModel
                 return;
             }
 
+            //Block Navigation
+            BlockNavigation();
+            StopDynamicUpdates();
+            DisableSpecificJS();
+            await Task.Delay(100);
+
+            //Inject DataUid
             InjectDataUid();
-            await Task.Delay(200);
+            await Task.Delay(100);
 
             try
             {
@@ -506,6 +512,33 @@ namespace Crowl_Alpha.ViewModel
                 MessageBox.Show($"Error during analysis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private void BlockNavigation()
+        {
+            browser.RequestHandler = new BlockRequestHandler();
+        }
+        private void StopDynamicUpdates()
+        {
+            // Execute JavaScript in the page context to stop dynamic updates
+            browser.GetBrowser().MainFrame.ExecuteJavaScriptAsync("window.stop();");
+        }
+        private void DisableSpecificJS()
+        {
+            // Disable specific JS functions that React or other frameworks may rely on
+            var script = @"
+        // Disable timers
+        window.setTimeout = function() {};
+        window.setInterval = function() {};
+        
+        // Disable React re-rendering (example)
+        if (window.React) {
+            React.Component.prototype.setState = function() { console.log('React setState blocked'); };
+        }
+    ";
+
+            browser.GetBrowser().MainFrame.ExecuteJavaScriptAsync(script);
+        }
+
+
         private void StartHtmlFragmentation(string html)
         {
             var doc = new HtmlAgilityPack.HtmlDocument();
@@ -621,6 +654,7 @@ namespace Crowl_Alpha.ViewModel
         }
         private void AnalyzeCleanup()
         {
+            AllowNavigation();
             AnalyzedUrl = null;
             RootNode = null;
             HtmlNodes = null;
@@ -633,6 +667,10 @@ namespace Crowl_Alpha.ViewModel
             //CanExecuteChanged of AnalyzeCommand
             (AnalyzeCommand as RelayCommand)?.RaiseCanExecuteChanged();
 
+        }
+        private void AllowNavigation()
+        {
+            browser.RequestHandler = new DefaultRequestHandler();
         }
 
         #endregion
